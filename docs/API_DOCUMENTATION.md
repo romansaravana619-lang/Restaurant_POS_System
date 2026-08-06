@@ -468,3 +468,254 @@ DELETE /suppliers/SUP001
 | 500 | Internal server error |
 
 ---
+
+
+---
+
+# Inventory Module
+
+Base URL:
+
+```
+http://127.0.0.1:5000
+```
+
+---
+
+## 1. Create Inventory Item
+
+**Endpoint**
+
+```
+POST /inventory-items
+```
+
+**Description**
+
+Creates a new inventory item.
+
+### Request Body
+
+```json
+{
+    "inventory_id": "INV001",
+    "supplier_id": "SUP001",
+    "item_name": "Basmati Rice",
+    "unit": "kg",
+    "quantity": 50,
+    "unit_cost": 95,
+    "reorder_level": 5,
+    "status": "Active"
+}
+```
+
+### Success Response (201)
+
+```json
+{
+    "success": true,
+    "message": "Inventory item added successfully."
+}
+```
+
+### Error Response (400)
+
+```json
+{
+    "success": false,
+    "message": "Inventory ID already exists."
+}
+```
+
+---
+
+## 2. Get All Inventory Items
+
+**Endpoint**
+
+```
+GET /inventory-items
+```
+
+**Description**
+
+Retrieves all inventory items from the database.
+
+### Success Response (200)
+
+```json
+{
+    "success": true,
+    "inventory_items": [
+        {
+            "inventory_id": "INV001",
+            "supplier_id": "SUP001",
+            "item_name": "Basmati Rice",
+            "unit": "kg",
+            "quantity": 50,
+            "unit_cost": 95,
+            "reorder_level": 5,
+            "status": "Active"
+        }
+    ]
+}
+```
+
+### Error Response (404)
+
+```json
+{
+    "success": false,
+    "message": "No inventory items found."
+}
+```
+
+---
+
+## 3. Get Inventory Item By ID
+
+**Endpoint**
+
+```
+GET /inventory-items/{inventory_id}
+```
+
+### Example
+
+```
+GET /inventory-items/INV001
+```
+
+**Description**
+
+Retrieves a specific inventory item using its inventory ID.
+
+### Success Response (200)
+
+```json
+{
+    "success": true,
+    "inventory_item": {
+        "inventory_id": "INV001",
+        "supplier_id": "SUP001",
+        "item_name": "Basmati Rice",
+        "unit": "kg",
+        "quantity": 50,
+        "unit_cost": 95,
+        "reorder_level": 5,
+        "status": "Active"
+    }
+}
+```
+
+### Error Response (404)
+
+```json
+{
+    "success": false,
+    "message": "Inventory item not found."
+}
+```
+
+---
+
+## 4. Update Inventory Item
+
+**Endpoint**
+
+```
+PUT /inventory-items/{inventory_id}
+```
+
+### Example
+
+```
+PUT /inventory-items/INV001
+```
+
+### Request Body
+
+```json
+{
+    "supplier_id": "SUP001",
+    "item_name": "Basmati Rice Premium",
+    "unit": "kg",
+    "quantity": 75,
+    "unit_cost": 100,
+    "reorder_level": 10,
+    "status": "Active"
+}
+```
+
+### Success Response (200)
+
+```json
+{
+    "success": true,
+    "message": "Inventory item updated successfully."
+}
+```
+
+### Error Response (404)
+
+```json
+{
+    "success": false,
+    "message": "Inventory item not found."
+}
+```
+
+---
+
+## 5. Delete Inventory Item
+
+**Endpoint**
+
+```
+DELETE /inventory-items/{inventory_id}
+```
+
+### Example
+
+```
+DELETE /inventory-items/INV001
+```
+
+**Description**
+
+Deletes an inventory item from the database.
+
+### Success Response (200)
+
+```json
+{
+    "success": true,
+    "message": "Inventory item deleted successfully."
+}
+```
+
+### Error Response (404)
+
+```json
+{
+    "success": false,
+    "message": "Inventory item not found."
+}
+```
+
+---
+
+## Inventory Item Fields
+
+| Field | Type | Description |
+|------|------|-------------|
+| inventory_id | String | Unique inventory item ID |
+| supplier_id | String | Supplier ID (Foreign Key) |
+| item_name | String | Inventory item name |
+| unit | String | Unit of measurement (kg, litre, piece, bottle, etc.) |
+| quantity | Float | Current available stock quantity |
+| unit_cost | Float | Cost per unit |
+| reorder_level | Float | Minimum stock level before reordering |
+| status | String | Inventory item status (Active / Inactive) |
+
+---
