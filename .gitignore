@@ -1,0 +1,16 @@
+# Virtual Environment
+venv/
+
+# Python Cache
+__pycache__/
+*.py[cod]
+
+# VS Code
+.vscode/
+
+# Environment Variables
+.env
+
+# SQLite temp files
+*.db-wal
+*.db-shm
