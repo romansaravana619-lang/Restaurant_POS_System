@@ -285,3 +285,186 @@ Not Required
 | Version | Description |
 |---------|-------------|
 | v1.0 | Authentication Module + Customer CRUD Module Completed |
+
+# Supplier APIs
+
+---
+
+## POST /suppliers
+
+### Description
+
+Creates a new supplier record in the system.
+
+### Request Body
+
+```json
+{
+    "supplier_id": "SUP001",
+    "supplier_name": "ABC Foods",
+    "contact_person": "Rajesh",
+    "phone": "9876543210",
+    "email": "abcfoods@gmail.com",
+    "address": "Coimbatore",
+    "status": "Active"
+}
+```
+
+### Success Response
+
+```json
+{
+    "success": true,
+    "message": "Supplier added successfully."
+}
+```
+
+**Status Code:** `201 Created`
+
+---
+
+## GET /suppliers
+
+### Description
+
+Retrieves all suppliers available in the system.
+
+### Success Response
+
+```json
+{
+    "success": true,
+    "suppliers": [
+        {
+            "supplier_id": "SUP001",
+            "supplier_name": "ABC Foods",
+            "contact_person": "Rajesh",
+            "phone": "9876543210",
+            "email": "abcfoods@gmail.com",
+            "address": "Coimbatore",
+            "status": "Active"
+        }
+    ]
+}
+```
+
+**Status Code:** `200 OK`
+
+---
+
+## GET /suppliers/{supplier_id}
+
+### Description
+
+Retrieves a supplier using the unique supplier ID.
+
+### Example
+
+```http
+GET /suppliers/SUP001
+```
+
+### Success Response
+
+```json
+{
+    "success": true,
+    "supplier": {
+        "supplier_id": "SUP001",
+        "supplier_name": "ABC Foods",
+        "contact_person": "Rajesh",
+        "phone": "9876543210",
+        "email": "abcfoods@gmail.com",
+        "address": "Coimbatore",
+        "status": "Active"
+    }
+}
+```
+
+**Status Code:** `200 OK`
+
+---
+
+## PUT /suppliers/{supplier_id}
+
+### Description
+
+Updates an existing supplier.
+
+### Example
+
+```http
+PUT /suppliers/SUP001
+```
+
+### Request Body
+
+```json
+{
+    "supplier_name": "ABC Foods Pvt Ltd",
+    "contact_person": "Rajesh Kumar",
+    "phone": "9876543210",
+    "email": "abcfoods@gmail.com",
+    "address": "Coimbatore, Tamil Nadu",
+    "status": "Active"
+}
+```
+
+### Success Response
+
+```json
+{
+    "success": true,
+    "message": "Supplier updated successfully."
+}
+```
+
+**Status Code:** `200 OK`
+
+---
+
+## DELETE /suppliers/{supplier_id}
+
+### Description
+
+Deletes an existing supplier from the system.
+
+### Example
+
+```http
+DELETE /suppliers/SUP001
+```
+
+### Success Response
+
+```json
+{
+    "success": true,
+    "message": "Supplier deleted successfully."
+}
+```
+
+**Status Code:** `200 OK`
+
+---
+
+## Error Response Format
+
+```json
+{
+    "success": false,
+    "message": "Supplier not found."
+}
+```
+
+**Common Status Codes**
+
+| Status Code | Description |
+|-------------|-------------|
+| 200 | Request completed successfully |
+| 201 | Supplier created successfully |
+| 400 | Invalid request body or validation failed |
+| 404 | Supplier not found |
+| 500 | Internal server error |
+
+---
