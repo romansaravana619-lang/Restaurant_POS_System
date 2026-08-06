@@ -7,6 +7,7 @@ Main Flask application entry point for Saru POS v1.0.
 from flask import Flask, jsonify
 from routes.auth import auth_bp
 from routes.customer import customer_bp
+from routes.supplier import supplier_bp
 
 # Initialize Flask application
 app = Flask(__name__)
@@ -14,6 +15,8 @@ app = Flask(__name__)
 # Register blueprints
 app.register_blueprint(auth_bp)
 app.register_blueprint(customer_bp)
+app.register_blueprint(supplier_bp)
+
 
 @app.route("/", methods=["GET"])
 def index():
