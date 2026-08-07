@@ -719,3 +719,225 @@ Deletes an inventory item from the database.
 | status | String | Inventory item status (Active / Inactive) |
 
 ---
+
+---
+
+# Category Module
+
+Base URL:
+
+```
+http://127.0.0.1:5000
+```
+
+---
+
+## 1. Create Category
+
+**Endpoint**
+
+```
+POST /categories
+```
+
+**Description**
+
+Creates a new menu category.
+
+### Request Body
+
+```json
+{
+    "category_id": "CAT001",
+    "category_name": "Main Course",
+    "description": "Main food items",
+    "status": "Active"
+}
+```
+
+### Success Response (201)
+
+```json
+{
+    "success": true,
+    "message": "Category added successfully."
+}
+```
+
+### Error Response (400)
+
+```json
+{
+    "success": false,
+    "message": "Category with this ID or name already exists."
+}
+```
+
+---
+
+## 2. Get All Categories
+
+**Endpoint**
+
+```
+GET /categories
+```
+
+**Description**
+
+Retrieves all categories ordered alphabetically.
+
+### Success Response (200)
+
+```json
+{
+    "success": true,
+    "categories": [
+        {
+            "category_id": "CAT001",
+            "category_name": "Main Course",
+            "description": "Main food items",
+            "status": "Active"
+        }
+    ]
+}
+```
+
+### Error Response (404)
+
+```json
+{
+    "success": false,
+    "message": "No categories found."
+}
+```
+
+---
+
+## 3. Get Category By ID
+
+**Endpoint**
+
+```
+GET /categories/{category_id}
+```
+
+### Example
+
+```
+GET /categories/CAT001
+```
+
+### Success Response (200)
+
+```json
+{
+    "success": true,
+    "category": {
+        "category_id": "CAT001",
+        "category_name": "Main Course",
+        "description": "Main food items",
+        "status": "Active"
+    }
+}
+```
+
+### Error Response (404)
+
+```json
+{
+    "success": false,
+    "message": "Category not found."
+}
+```
+
+---
+
+## 4. Update Category
+
+**Endpoint**
+
+```
+PUT /categories/{category_id}
+```
+
+### Example
+
+```
+PUT /categories/CAT001
+```
+
+### Request Body
+
+```json
+{
+    "category_name": "Main Course",
+    "description": "Updated category description",
+    "status": "Active"
+}
+```
+
+### Success Response (200)
+
+```json
+{
+    "success": true,
+    "message": "Category updated successfully."
+}
+```
+
+### Error Response (404)
+
+```json
+{
+    "success": false,
+    "message": "Category not found."
+}
+```
+
+---
+
+## 5. Delete Category
+
+**Endpoint**
+
+```
+DELETE /categories/{category_id}
+```
+
+### Example
+
+```
+DELETE /categories/CAT001
+```
+
+### Success Response (200)
+
+```json
+{
+    "success": true,
+    "message": "Category deleted successfully."
+}
+```
+
+### Error Response (404)
+
+```json
+{
+    "success": false,
+    "message": "Category not found."
+}
+```
+
+---
+
+## Category Fields
+
+| Field | Type | Description |
+|------|------|-------------|
+| category_id | String | Unique category ID |
+| category_name | String | Category name |
+| description | String | Category description |
+| status | String | Category status (Active / Inactive) |
+
+---

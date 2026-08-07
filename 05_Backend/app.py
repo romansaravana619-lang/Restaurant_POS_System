@@ -9,6 +9,7 @@ from routes.auth import auth_bp
 from routes.customer import customer_bp
 from routes.supplier import supplier_bp
 from routes.inventory import inventory_bp
+from routes.category import category_bp
 
 # Initialize Flask application
 app = Flask(__name__)
@@ -18,6 +19,7 @@ app.register_blueprint(auth_bp)
 app.register_blueprint(customer_bp)
 app.register_blueprint(supplier_bp)
 app.register_blueprint(inventory_bp)
+app.register_blueprint(category_bp)
 
 @app.route("/", methods=["GET"])
 def index():
