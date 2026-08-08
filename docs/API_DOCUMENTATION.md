@@ -1422,3 +1422,228 @@ bill_items
 ```
 
 ---
+
+---
+
+# Restaurant Table Module
+
+Base URL:
+
+```text
+http://127.0.0.1:5000
+```
+
+---
+
+## 1. Create Restaurant Table
+
+**Endpoint**
+
+```text
+POST /restaurant-tables
+```
+
+### Request Body
+
+```json
+{
+    "table_id": "TABLE001",
+    "table_number": "T01",
+    "capacity": 4,
+    "status": "Available"
+}
+```
+
+### Success Response (201)
+
+```json
+{
+    "success": true,
+    "message": "Restaurant table added successfully."
+}
+```
+
+### Error Response (400)
+
+```json
+{
+    "success": false,
+    "message": "Restaurant table with this ID or table number already exists."
+}
+```
+
+---
+
+## 2. Get All Restaurant Tables
+
+**Endpoint**
+
+```text
+GET /restaurant-tables
+```
+
+### Success Response (200)
+
+```json
+{
+    "success": true,
+    "restaurant_tables": [
+        {
+            "table_id": "TABLE001",
+            "table_number": "T01",
+            "capacity": 4,
+            "status": "Available"
+        }
+    ]
+}
+```
+
+### Error Response (404)
+
+```json
+{
+    "success": false,
+    "message": "No restaurant tables found."
+}
+```
+
+---
+
+## 3. Get Restaurant Table By ID
+
+**Endpoint**
+
+```text
+GET /restaurant-tables/{table_id}
+```
+
+### Example
+
+```text
+GET /restaurant-tables/TABLE001
+```
+
+### Success Response (200)
+
+```json
+{
+    "success": true,
+    "restaurant_table": {
+        "table_id": "TABLE001",
+        "table_number": "T01",
+        "capacity": 4,
+        "status": "Available"
+    }
+}
+```
+
+### Error Response (404)
+
+```json
+{
+    "success": false,
+    "message": "Restaurant table not found."
+}
+```
+
+---
+
+## 4. Update Restaurant Table
+
+**Endpoint**
+
+```text
+PUT /restaurant-tables/{table_id}
+```
+
+### Example
+
+```text
+PUT /restaurant-tables/TABLE001
+```
+
+### Request Body
+
+```json
+{
+    "table_number": "T01",
+    "capacity": 6,
+    "status": "Available"
+}
+```
+
+### Success Response (200)
+
+```json
+{
+    "success": true,
+    "message": "Restaurant table updated successfully."
+}
+```
+
+### Error Response (404)
+
+```json
+{
+    "success": false,
+    "message": "Restaurant table not found."
+}
+```
+
+---
+
+## 5. Delete Restaurant Table
+
+**Endpoint**
+
+```text
+DELETE /restaurant-tables/{table_id}
+```
+
+### Example
+
+```text
+DELETE /restaurant-tables/TABLE001
+```
+
+### Success Response (200)
+
+```json
+{
+    "success": true,
+    "message": "Restaurant table deleted successfully."
+}
+```
+
+### Error Response (404)
+
+```json
+{
+    "success": false,
+    "message": "Restaurant table not found."
+}
+```
+
+### Referenced Table Error
+
+If the restaurant table is referenced by an existing bill:
+
+```json
+{
+    "success": false,
+    "message": "Restaurant table cannot be deleted because it is referenced by existing records."
+}
+```
+
+---
+
+## Restaurant Table Fields
+
+| Field | Type | Description |
+|------|------|-------------|
+| table_id | String | Unique restaurant table ID |
+| table_number | String | Unique table number or name |
+| capacity | Integer | Maximum seating capacity |
+| status | String | Current table status |
+
+---
