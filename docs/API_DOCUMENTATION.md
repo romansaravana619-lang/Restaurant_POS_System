@@ -1164,3 +1164,261 @@ DELETE /categories/CAT001
 
 ---
 
+---
+
+# Menu Item Module
+
+Base URL:
+
+```text
+http://127.0.0.1:5000
+```
+
+---
+
+## 1. Create Menu Item
+
+**Endpoint**
+
+```text
+POST /menu-items
+```
+
+**Description**
+
+Creates a new menu item and associates it with an existing menu category.
+
+### Request Body
+
+```json
+{
+    "menu_item_id": "MENU001",
+    "category_id": "CAT100",
+    "item_name": "Tomato Soup",
+    "price": 120,
+    "description": "Fresh tomato soup",
+    "availability": "Available"
+}
+```
+
+### Success Response (201)
+
+```json
+{
+    "success": true,
+    "message": "Menu item added successfully."
+}
+```
+
+### Error Response (400)
+
+```json
+{
+    "success": false,
+    "message": "Menu item with this ID already exists or category does not exist."
+}
+```
+
+---
+
+## 2. Get All Menu Items
+
+**Endpoint**
+
+```text
+GET /menu-items
+```
+
+**Description**
+
+Retrieves all menu items ordered alphabetically by item name.
+
+### Success Response (200)
+
+```json
+{
+    "success": true,
+    "menu_items": [
+        {
+            "menu_item_id": "MENU001",
+            "category_id": "CAT100",
+            "item_name": "Tomato Soup",
+            "price": 120,
+            "description": "Fresh tomato soup",
+            "availability": "Available"
+        }
+    ]
+}
+```
+
+### Error Response (404)
+
+```json
+{
+    "success": false,
+    "message": "No menu items found."
+}
+```
+
+---
+
+## 3. Get Menu Item By ID
+
+**Endpoint**
+
+```text
+GET /menu-items/{menu_item_id}
+```
+
+### Example
+
+```text
+GET /menu-items/MENU001
+```
+
+### Success Response (200)
+
+```json
+{
+    "success": true,
+    "menu_item": {
+        "menu_item_id": "MENU001",
+        "category_id": "CAT100",
+        "item_name": "Tomato Soup",
+        "price": 120,
+        "description": "Fresh tomato soup",
+        "availability": "Available"
+    }
+}
+```
+
+### Error Response (404)
+
+```json
+{
+    "success": false,
+    "message": "Menu item not found."
+}
+```
+
+---
+
+## 4. Update Menu Item
+
+**Endpoint**
+
+```text
+PUT /menu-items/{menu_item_id}
+```
+
+### Example
+
+```text
+PUT /menu-items/MENU001
+```
+
+### Request Body
+
+```json
+{
+    "category_id": "CAT100",
+    "item_name": "Tomato Soup Special",
+    "price": 140,
+    "description": "Fresh tomato soup with special seasoning",
+    "availability": "Available"
+}
+```
+
+### Success Response (200)
+
+```json
+{
+    "success": true,
+    "message": "Menu item updated successfully."
+}
+```
+
+### Error Response (404)
+
+```json
+{
+    "success": false,
+    "message": "Menu item not found."
+}
+```
+
+---
+
+## 5. Delete Menu Item
+
+**Endpoint**
+
+```text
+DELETE /menu-items/{menu_item_id}
+```
+
+### Example
+
+```text
+DELETE /menu-items/MENU001
+```
+
+### Success Response (200)
+
+```json
+{
+    "success": true,
+    "message": "Menu item deleted successfully."
+}
+```
+
+### Error Response (404)
+
+```json
+{
+    "success": false,
+    "message": "Menu item not found."
+}
+```
+
+### Referenced Menu Item Error
+
+If the menu item is referenced by an existing billing record:
+
+```json
+{
+    "success": false,
+    "message": "Menu item cannot be deleted because it is referenced by existing records."
+}
+```
+
+---
+
+## Menu Item Fields
+
+| Field | Type | Description |
+|------|------|-------------|
+| menu_item_id | String | Unique menu item ID |
+| category_id | String | ID of the associated menu category |
+| item_name | String | Name of the menu item |
+| price | Float | Selling price of the menu item |
+| description | String | Description of the menu item |
+| availability | String | Availability status of the menu item |
+
+---
+
+## Menu Item Relationship
+
+```text
+categories
+     │
+     │ category_id
+     ▼
+menu_items
+     │
+     │ menu_item_id
+     ▼
+bill_items
+```
+
+---
