@@ -1163,3 +1163,4 @@ DELETE /categories/CAT001
 | status | String | Category status (Active / Inactive) |
 
 ---
+
