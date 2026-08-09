@@ -2388,3 +2388,178 @@ Relationship
 Bills → Payments (1:1)
 payments.bill_id references bills.bill_id
 bill_id is UNIQUE in the payments table
+
+# Employee Module
+
+Base URL:
+
+```text
+http://127.0.0.1:5000
+
+1. Create Employee
+
+Endpoint
+
+POST /employees
+
+Creates a new employee record.
+
+Request Body
+{
+    "employee_id": "EMP002",
+    "full_name": "Arun Kumar",
+    "phone": "9876543210",
+    "email": "arun@sarupos.com",
+    "designation": "Manager",
+    "address": "Coimbatore",
+    "role": "Manager",
+    "hire_date": "2026-08-09",
+    "salary": 35000.00,
+    "status": "Active"
+}
+Success Response (201)
+{
+    "success": true,
+    "message": "Employee added successfully."
+}
+Error Response (400)
+{
+    "success": false,
+    "message": "Employee with this ID, phone, or email already exists."
+}
+2. Get All Employees
+
+Endpoint
+
+GET /employees
+
+Retrieves all employee records.
+
+Success Response (200)
+{
+    "success": true,
+    "employees": [
+        {
+            "employee_id": "EMP001",
+            "full_name": "Administrator",
+            "phone": "9999999999",
+            "email": "admin@sarupos.com",
+            "designation": null,
+            "address": null,
+            "role": "Admin",
+            "hire_date": "2026-01-01",
+            "salary": 50000.0,
+            "status": "Active"
+        }
+    ]
+}
+Error Response (404)
+{
+    "success": false,
+    "message": "No employees found."
+}
+3. Get Employee By ID
+
+Endpoint
+
+GET /employees/<employee_id>
+
+Retrieves a specific employee using the employee ID.
+
+Success Response (200)
+{
+    "success": true,
+    "employee": {
+        "employee_id": "EMP001",
+        "full_name": "Administrator",
+        "phone": "9999999999",
+        "email": "admin@sarupos.com",
+        "designation": null,
+        "address": null,
+        "role": "Admin",
+        "hire_date": "2026-01-01",
+        "salary": 50000.0,
+        "status": "Active"
+    }
+}
+Error Response (404)
+{
+    "success": false,
+    "message": "Employee not found."
+}
+4. Update Employee
+
+Endpoint
+
+PUT /employees/<employee_id>
+
+Updates an existing employee record.
+
+Request Body
+{
+    "full_name": "Arun Kumar",
+    "phone": "9876543210",
+    "email": "arun@sarupos.com",
+    "designation": "Senior Manager",
+    "address": "Coimbatore",
+    "role": "Manager",
+    "hire_date": "2026-08-09",
+    "salary": 40000.00,
+    "status": "Active"
+}
+Success Response (200)
+{
+    "success": true,
+    "message": "Employee updated successfully."
+}
+Error Response (400)
+{
+    "success": false,
+    "message": "Employee with this phone or email already exists."
+}
+Error Response (404)
+{
+    "success": false,
+    "message": "Employee not found."
+}
+5. Delete Employee
+
+Endpoint
+
+DELETE /employees/<employee_id>
+
+Deletes an employee using the employee ID.
+
+Success Response (200)
+{
+    "success": true,
+    "message": "Employee deleted successfully."
+}
+Error Response (404)
+{
+    "success": false,
+    "message": "Employee not found."
+}
+Employee Fields
+Field	Type	Description
+employee_id	TEXT	Unique employee identifier
+full_name	TEXT	Full name of the employee
+phone	TEXT	Employee phone number
+email	TEXT	Employee email address
+designation	TEXT	Employee designation
+address	TEXT	Employee address
+role	TEXT	Employee role
+hire_date	TEXT	Employee hire date
+salary	REAL	Employee salary
+status	TEXT	Current employee status
+Constraints
+employee_id is the primary key.
+phone must be unique when provided.
+email must be unique when provided.
+full_name is required.
+role is required.
+status is required.
+designation, address, hire_date, and salary are optional.
+Relationships
+employees has no declared foreign keys.
+Employee records are referenced logically by other modules such as Billing and User Management.
