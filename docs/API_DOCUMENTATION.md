@@ -2240,3 +2240,151 @@ DELETE /bill-items/BITEM001
 | subtotal | Float | Total amount for the bill item |
 
 ---
+
+# Payment Module
+
+Base URL:
+
+```text
+http://127.0.0.1:5000
+
+1. Create Payment
+
+Endpoint
+
+POST /payments
+
+Creates a new payment record linked to an existing bill.
+
+Request Body
+{
+    "payment_id": "PAY001",
+    "bill_id": "BILL003",
+    "payment_method": "Cash",
+    "payment_status": "Paid",
+    "payment_date": "2026-08-09",
+    "paid_amount": 500.00
+}
+Success Response (201)
+{
+    "success": true,
+    "message": "Payment added successfully."
+}
+Error Response (400)
+{
+    "success": false,
+    "message": "Payment with this ID already exists, the bill already has a payment, or the referenced bill does not exist."
+}
+2. Get All Payments
+
+Endpoint
+
+GET /payments
+
+Retrieves all payment records.
+
+Success Response (200)
+{
+    "success": true,
+    "payments": [
+        {
+            "payment_id": "PAY001",
+            "bill_id": "BILL003",
+            "payment_method": "UPI",
+            "payment_status": "Paid",
+            "payment_date": "2026-08-09",
+            "paid_amount": 500.0
+        }
+    ]
+}
+Error Response (404)
+{
+    "success": false,
+    "message": "No payments found."
+}
+3. Get Payment By ID
+
+Endpoint
+
+GET /payments/<payment_id>
+
+Retrieves a specific payment using its payment ID.
+
+Success Response (200)
+{
+    "success": true,
+    "payment": {
+        "payment_id": "PAY001",
+        "bill_id": "BILL003",
+        "payment_method": "UPI",
+        "payment_status": "Paid",
+        "payment_date": "2026-08-09",
+        "paid_amount": 500.0
+    }
+}
+Error Response (404)
+{
+    "success": false,
+    "message": "Payment not found."
+}
+4. Update Payment
+
+Endpoint
+
+PUT /payments/<payment_id>
+
+Updates an existing payment record.
+
+Request Body
+{
+    "bill_id": "BILL003",
+    "payment_method": "UPI",
+    "payment_status": "Paid",
+    "payment_date": "2026-08-09",
+    "paid_amount": 500.00
+}
+Success Response (200)
+{
+    "success": true,
+    "message": "Payment updated successfully."
+}
+Error Response (400)
+{
+    "success": false,
+    "message": "The bill already has a payment, or the referenced bill does not exist."
+}
+Error Response (404)
+{
+    "success": false,
+    "message": "Payment not found."
+}
+5. Delete Payment
+
+Endpoint
+
+DELETE /payments/<payment_id>
+
+Deletes a payment using its payment ID.
+
+Success Response (200)
+{
+    "success": true,
+    "message": "Payment deleted successfully."
+}
+Error Response (404)
+{
+    "success": false,
+    "message": "Payment not found."
+}
+Payment Fields
+Field	Type	Description
+payment_id	TEXT	Unique payment identifier
+bill_id	TEXT	Identifier of the associated bill
+payment_method	TEXT	Method used for payment
+payment_status	TEXT	Current payment status
+payment_date	TEXT	Date of payment
+paid_amount	REAL	Amount paid
+Relationship
+Bills → Payments (1:1)
+payments.bill_id references bills.bill_id
+bill_id is UNIQUE in the payments table
