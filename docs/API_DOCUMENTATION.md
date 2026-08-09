@@ -1944,3 +1944,299 @@ DELETE /bills/BILL001
 | status | String | Current bill status |
 
 ---
+
+# Bill Item Module
+
+Base URL:
+
+```text
+http://127.0.0.1:5000
+```
+
+---
+
+## 1. Create Bill Item
+
+**Endpoint**
+
+```text
+POST /bill-items
+```
+
+**Description**
+
+Creates a new line item for an existing bill.
+
+### Request Body
+
+```json
+{
+    "bill_item_id": "BITEM001",
+    "bill_id": "BILL002",
+    "menu_item_id": "ITEM001",
+    "quantity": 2,
+    "unit_price": 180.00,
+    "subtotal": 360.00
+}
+```
+
+### Success Response (201)
+
+```json
+{
+    "success": true,
+    "message": "Bill item added successfully."
+}
+```
+
+### Error Response (400)
+
+```json
+{
+    "success": false,
+    "message": "Request body must be valid JSON."
+}
+```
+
+### Validation Error (400)
+
+```json
+{
+    "success": false,
+    "message": "All fields (bill_item_id, bill_id, menu_item_id, quantity, unit_price, subtotal) are required."
+}
+```
+
+### Service Error (400)
+
+```json
+{
+    "success": false,
+    "message": "Bill item with this ID already exists, or a referenced bill or menu item does not exist."
+}
+```
+
+---
+
+## 2. Get All Bill Items
+
+**Endpoint**
+
+```text
+GET /bill-items
+```
+
+**Description**
+
+Retrieves all bill items ordered by bill item ID.
+
+### Success Response (200)
+
+```json
+{
+    "success": true,
+    "bill_items": [
+        {
+            "bill_item_id": "BITEM001",
+            "bill_id": "BILL002",
+            "menu_item_id": "ITEM001",
+            "quantity": 2,
+            "unit_price": 180.00,
+            "subtotal": 360.00
+        }
+    ]
+}
+```
+
+### Error Response (404)
+
+```json
+{
+    "success": false,
+    "message": "No bill items found."
+}
+```
+
+---
+
+## 3. Get Bill Item By ID
+
+**Endpoint**
+
+```text
+GET /bill-items/{bill_item_id}
+```
+
+**Description**
+
+Retrieves a specific bill item using its bill item ID.
+
+### Example
+
+```text
+GET /bill-items/BITEM001
+```
+
+### Success Response (200)
+
+```json
+{
+    "success": true,
+    "bill_item": {
+        "bill_item_id": "BITEM001",
+        "bill_id": "BILL002",
+        "menu_item_id": "ITEM001",
+        "quantity": 2,
+        "unit_price": 180.00,
+        "subtotal": 360.00
+    }
+}
+```
+
+### Error Response (404)
+
+```json
+{
+    "success": false,
+    "message": "Bill item not found."
+}
+```
+
+---
+
+## 4. Update Bill Item
+
+**Endpoint**
+
+```text
+PUT /bill-items/{bill_item_id}
+```
+
+**Description**
+
+Updates an existing bill item using its bill item ID.
+
+### Example
+
+```text
+PUT /bill-items/BITEM001
+```
+
+### Request Body
+
+```json
+{
+    "bill_id": "BILL002",
+    "menu_item_id": "ITEM001",
+    "quantity": 3,
+    "unit_price": 180.00,
+    "subtotal": 540.00
+}
+```
+
+### Success Response (200)
+
+```json
+{
+    "success": true,
+    "message": "Bill item updated successfully."
+}
+```
+
+### Error Response (400)
+
+```json
+{
+    "success": false,
+    "message": "Request body must be valid JSON."
+}
+```
+
+### Validation Error (400)
+
+```json
+{
+    "success": false,
+    "message": "All fields (bill_id, menu_item_id, quantity, unit_price, subtotal) are required."
+}
+```
+
+### Error Response (404)
+
+```json
+{
+    "success": false,
+    "message": "Bill item not found."
+}
+```
+
+### Service Error (404)
+
+```json
+{
+    "success": false,
+    "message": "Referenced bill or menu item does not exist."
+}
+```
+
+---
+
+## 5. Delete Bill Item
+
+**Endpoint**
+
+```text
+DELETE /bill-items/{bill_item_id}
+```
+
+**Description**
+
+Deletes an existing bill item using its bill item ID.
+
+### Example
+
+```text
+DELETE /bill-items/BITEM001
+```
+
+### Success Response (200)
+
+```json
+{
+    "success": true,
+    "message": "Bill item deleted successfully."
+}
+```
+
+### Error Response (404)
+
+```json
+{
+    "success": false,
+    "message": "Bill item not found."
+}
+```
+
+### Referenced Bill Item Error (404)
+
+```json
+{
+    "success": false,
+    "message": "Bill item cannot be deleted because it is referenced by existing records."
+}
+```
+
+---
+
+## Bill Item Fields
+
+| Field | Type | Description |
+|------|------|-------------|
+| bill_item_id | String | Unique bill item ID |
+| bill_id | String | ID of the associated bill |
+| menu_item_id | String | ID of the associated menu item |
+| quantity | Integer | Quantity of the menu item |
+| unit_price | Float | Price per menu item unit |
+| subtotal | Float | Total amount for the bill item |
+
+---

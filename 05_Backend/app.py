@@ -13,6 +13,7 @@ from routes.category import category_bp
 from routes.menu_item import menu_item_bp
 from routes.restaurant_table import restaurant_table_bp
 from routes.billing import billing_bp
+from routes.bill_item import bill_item_bp
 
 # Initialize Flask application
 app = Flask(__name__)
@@ -26,6 +27,7 @@ app.register_blueprint(category_bp)
 app.register_blueprint(menu_item_bp)
 app.register_blueprint(restaurant_table_bp)
 app.register_blueprint(billing_bp)
+app.register_blueprint(bill_item_bp)
 
 
 @app.route("/", methods=["GET"])
