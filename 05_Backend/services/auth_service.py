@@ -7,78 +7,124 @@ Uses connection utilities from connection.py.
 """
 
 import sqlite3
+
+from argon2 import PasswordHasher
+from argon2.exceptions import InvalidHashError, VerificationError
+
 from connection import get_connection, close_connection
+
+
+password_hasher = PasswordHasher()
 
 
 def verify_user(username, password):
     """
     Verify user credentials against the users table.
 
-    Args:
-        username (str): Username provided by the client.
-        password (str): Password provided by the client.
-
-    Returns:
-        dict: Result dictionary containing success status and either
-              the matched user record or an error message.
+    Supports Argon2 password hashes and performs a one-time migration
+    for existing plaintext passwords after successful authentication.
     """
+
     connection = None
+
     try:
-        # Establish database connection
         connection = get_connection()
         cursor = connection.cursor()
 
-        # Query user by username and password using parameterized query
         query = """
-            SELECT user_id,
-                   employee_id,
-                   username,
-                   role,
-                   status
+            SELECT
+                user_id,
+                employee_id,
+                username,
+                password,
+                role,
+                status
             FROM users
             WHERE username = ?
-              AND password = ?
               AND status = 'Active'
         """
-        cursor.execute(query, (username, password))
+
+        cursor.execute(query, (username,))
         row = cursor.fetchone()
 
-        # If a matching user record is found
-        if row:
-            user = {
-                "user_id": row["user_id"],
-                "employee_id": row["employee_id"],
-                "username": row["username"],
-                "role": row["role"],
-                 "status": row["status"],
-            }
+        if not row:
             return {
-                "success": True,
-                "user": user,
+                "success": False,
+                "message": "Invalid username or password.",
             }
 
-        # No matching record found
+        stored_password = row["password"]
+        password_verified = False
+        plaintext_password = False
+
+        try:
+            password_verified = password_hasher.verify(
+                stored_password,
+                password,
+            )
+
+        except (VerificationError, InvalidHashError):
+            password_verified = False
+
+        # Backward compatibility for existing plaintext passwords.
+        if not password_verified and stored_password == password:
+            password_verified = True
+            plaintext_password = True
+
+        if not password_verified:
+            return {
+                "success": False,
+                "message": "Invalid username or password.",
+            }
+
+        # Migrate existing plaintext password to Argon2.
+        if plaintext_password:
+            hashed_password = password_hasher.hash(password)
+
+            update_query = """
+                UPDATE users
+                SET password = ?
+                WHERE user_id = ?
+            """
+
+            cursor.execute(
+                update_query,
+                (hashed_password, row["user_id"]),
+            )
+
+            connection.commit()
+
+        user = {
+            "user_id": row["user_id"],
+            "employee_id": row["employee_id"],
+            "username": row["username"],
+            "role": row["role"],
+            "status": row["status"],
+        }
+
         return {
-            "success": False,
-            "message": "Invalid username or password.",
+            "success": True,
+            "user": user,
         }
 
     except sqlite3.Error as db_error:
-        # Handle database-related errors
+        if connection is not None:
+            connection.rollback()
+
         return {
             "success": False,
             "message": f"Database error occurred: {db_error}",
         }
 
     except Exception as error:
-        # Handle any other unexpected errors
+        if connection is not None:
+            connection.rollback()
+
         return {
             "success": False,
             "message": f"An unexpected error occurred: {error}",
         }
 
     finally:
-        # Ensure connection is closed regardless of success or failure
         if connection is not None:
             close_connection(connection)
-    

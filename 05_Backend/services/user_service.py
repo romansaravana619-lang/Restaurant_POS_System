@@ -5,7 +5,12 @@ Handles business logic and database interactions for the users table.
 
 import sqlite3
 
+from argon2 import PasswordHasher
+
 from connection import get_connection, close_connection
+
+
+password_hasher = PasswordHasher()
 
 
 def add_user(
@@ -16,13 +21,15 @@ def add_user(
     role: str,
     status: str
 ) -> dict:
-    """Adds a new user to the database."""
+    """Adds a new user with an Argon2 password hash."""
 
     connection = None
 
     try:
         connection = get_connection()
         cursor = connection.cursor()
+
+        hashed_password = password_hasher.hash(password)
 
         insert_query = """
             INSERT INTO users (
@@ -42,7 +49,7 @@ def add_user(
                 user_id,
                 employee_id,
                 username,
-                password,
+                hashed_password,
                 role,
                 status,
             ),
@@ -203,13 +210,15 @@ def update_user(
     role: str,
     status: str
 ) -> dict:
-    """Updates an existing user in the database."""
+    """Updates an existing user with an Argon2 password hash."""
 
     connection = None
 
     try:
         connection = get_connection()
         cursor = connection.cursor()
+
+        hashed_password = password_hasher.hash(password)
 
         update_query = """
             UPDATE users
@@ -227,7 +236,7 @@ def update_user(
             (
                 employee_id,
                 username,
-                password,
+                hashed_password,
                 role,
                 status,
                 user_id,

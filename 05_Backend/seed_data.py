@@ -7,7 +7,11 @@ Records are inserted only if they do not already exist (INSERT OR IGNORE).
 """
 
 import sqlite3
+from argon2 import PasswordHasher
 from connection import get_connection, close_connection
+
+
+password_hasher = PasswordHasher()
 
 
 def seed_default_data():
@@ -44,6 +48,7 @@ def seed_default_data():
         # ------------------------------------------------------------
         # Seed default user (admin login)
         # ------------------------------------------------------------
+        admin_password_hash = password_hasher.hash("admin123")
         cursor.execute(
             """
             INSERT OR IGNORE INTO users (
@@ -55,7 +60,7 @@ def seed_default_data():
                 "USER001",
                 "EMP001",
                 "admin",
-                "admin123",
+                admin_password_hash,
                 "Admin",
                 "Active",
             ),

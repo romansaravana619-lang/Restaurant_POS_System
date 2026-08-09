@@ -6,32 +6,47 @@ Defines the /login endpoint using a Flask Blueprint.
 """
 
 from flask import Blueprint, request, jsonify
+
 from services.auth_service import verify_user
 
-# Create authentication blueprint
+
 auth_bp = Blueprint("auth", __name__)
 
 
 @auth_bp.route("/login", methods=["POST"])
 def login():
-    """Authenticate a user using username and password."""
-    # Parse JSON request body
-    data = request.get_json(silent=True) or {}
+    """
+    Authenticate a user using username and password.
+
+    Returns:
+        JSON response containing authentication result.
+    """
+
+    data = request.get_json(silent=True)
+
+    if not data:
+        return jsonify({
+            "success": False,
+            "message": "Request body must be valid JSON."
+        }), 400
 
     username = data.get("username")
     password = data.get("password")
 
-    # Validate required fields
-    if not username or not password:
+    if not isinstance(username, str) or not username.strip():
         return jsonify({
             "success": False,
-            "message": "Username and password are required."
+            "message": "Username is required."
         }), 400
 
-    # Verify user credentials via the auth service
+    if not isinstance(password, str) or not password:
+        return jsonify({
+            "success": False,
+            "message": "Password is required."
+        }), 400
+
     result = verify_user(username, password)
 
-    # Return appropriate HTTP status based on verification result
     if result.get("success"):
         return jsonify(result), 200
 
