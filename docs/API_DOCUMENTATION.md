@@ -2563,3 +2563,161 @@ designation, address, hire_date, and salary are optional.
 Relationships
 employees has no declared foreign keys.
 Employee records are referenced logically by other modules such as Billing and User Management.
+
+
+# Settings Module
+
+Base URL:
+
+```text
+http://127.0.0.1:5000
+
+1. Create Settings
+
+Endpoint
+
+POST /settings
+
+Creates a new restaurant settings record.
+
+Request Body
+{
+    "setting_id": "SET002",
+    "restaurant_name": "Saru POS Test Restaurant",
+    "gst_number": "GST987654321",
+    "address": "Coimbatore",
+    "phone": "9123456780",
+    "email": "test@sarupos.com",
+    "currency": "INR",
+    "tax_percentage": 8.0
+}
+Success Response (201)
+{
+    "success": true,
+    "message": "Settings added successfully."
+}
+Error Response (400)
+{
+    "success": false,
+    "message": "Settings with this ID already exists."
+}
+2. Get All Settings
+
+Endpoint
+
+GET /settings
+
+Retrieves all restaurant settings records.
+
+Success Response (200)
+{
+    "success": true,
+    "settings": [
+        {
+            "setting_id": "SET001",
+            "restaurant_name": "Saru POS Restaurant",
+            "gst_number": "GST123456789",
+            "address": "Coimbatore",
+            "phone": "9876543210",
+            "email": "admin@sarupos.com",
+            "currency": "INR",
+            "tax_percentage": 5.0
+        }
+    ]
+}
+Error Response (404)
+{
+    "success": false,
+    "message": "No settings found."
+}
+3. Get Settings By ID
+
+Endpoint
+
+GET /settings/<setting_id>
+
+Retrieves a specific settings record using the setting ID.
+
+Success Response (200)
+{
+    "success": true,
+    "setting": {
+        "setting_id": "SET001",
+        "restaurant_name": "Saru POS Restaurant",
+        "gst_number": "GST123456789",
+        "address": "Coimbatore",
+        "phone": "9876543210",
+        "email": "admin@sarupos.com",
+        "currency": "INR",
+        "tax_percentage": 5.0
+    }
+}
+Error Response (404)
+{
+    "success": false,
+    "message": "Settings not found."
+}
+4. Update Settings
+
+Endpoint
+
+PUT /settings/<setting_id>
+
+Updates an existing restaurant settings record.
+
+Request Body
+{
+    "restaurant_name": "Saru POS Updated Restaurant",
+    "gst_number": "GST987654321",
+    "address": "Coimbatore",
+    "phone": "9123456780",
+    "email": "test@sarupos.com",
+    "currency": "INR",
+    "tax_percentage": 10.0
+}
+Success Response (200)
+{
+    "success": true,
+    "message": "Settings updated successfully."
+}
+Error Response (404)
+{
+    "success": false,
+    "message": "Settings not found."
+}
+5. Delete Settings
+
+Endpoint
+
+DELETE /settings/<setting_id>
+
+Deletes a settings record using the setting ID.
+
+Success Response (200)
+{
+    "success": true,
+    "message": "Settings deleted successfully."
+}
+Error Response (404)
+{
+    "success": false,
+    "message": "Settings not found."
+}
+Settings Fields
+Field	Type	Description
+setting_id	TEXT	Unique settings identifier
+restaurant_name	TEXT	Restaurant name
+gst_number	TEXT	GST number
+address	TEXT	Restaurant address
+phone	TEXT	Restaurant phone number
+email	TEXT	Restaurant email address
+currency	TEXT	Currency used by the restaurant
+tax_percentage	REAL	Applicable tax percentage
+Constraints
+setting_id is the primary key.
+restaurant_name is required.
+currency is required.
+tax_percentage is required.
+gst_number, address, phone, and email are optional.
+There are no declared foreign keys.
+There are no additional unique constraints.
