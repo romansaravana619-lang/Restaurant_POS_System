@@ -20,6 +20,7 @@ def get_connection():
     """
 
     connection = sqlite3.connect(DATABASE_PATH)
+    connection.execute("PRAGMA foreign_keys = ON")
 
     # Enable dictionary-like row access
     connection.row_factory = sqlite3.Row
