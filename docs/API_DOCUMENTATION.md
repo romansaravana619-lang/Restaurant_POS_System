@@ -1647,3 +1647,300 @@ If the restaurant table is referenced by an existing bill:
 | status | String | Current table status |
 
 ---
+
+# Billing Module
+
+Base URL:
+
+```text
+http://127.0.0.1:5000
+```
+
+---
+
+## 1. Create Bill
+
+**Endpoint**
+
+```text
+POST /bills
+```
+
+**Description**
+
+Creates a new bill for a customer, employee, and restaurant table.
+
+### Request Body
+
+```json
+{
+    "bill_id": "BILL001",
+    "customer_id": "CUS001",
+    "employee_id": "EMP001",
+    "table_id": "TABLE001",
+    "invoice_number": "INV-2026-0001",
+    "bill_date": "2026-08-09",
+    "total_amount": 1250.00,
+    "status": "Completed"
+}
+```
+
+### Success Response (201)
+
+```json
+{
+    "success": true,
+    "message": "Bill added successfully."
+}
+```
+
+### Error Response (400)
+
+```json
+{
+    "success": false,
+    "message": "Request body must be valid JSON."
+}
+```
+
+### Validation Error (400)
+
+```json
+{
+    "success": false,
+    "message": "All fields (bill_id, customer_id, employee_id, table_id, invoice_number, bill_date, total_amount, status) are required."
+}
+```
+
+### Service Error (400)
+
+```json
+{
+    "success": false,
+    "message": "Bill with this ID or invoice number already exists, or a referenced record does not exist."
+}
+```
+
+---
+
+## 2. Get All Bills
+
+**Endpoint**
+
+```text
+GET /bills
+```
+
+**Description**
+
+Retrieves all bills ordered by bill date in descending order.
+
+### Success Response (200)
+
+```json
+{
+    "success": true,
+    "bills": [
+        {
+            "bill_id": "BILL001",
+            "customer_id": "CUS001",
+            "employee_id": "EMP001",
+            "table_id": "TABLE001",
+            "invoice_number": "INV-2026-0001",
+            "bill_date": "2026-08-09",
+            "total_amount": 1250.00,
+            "status": "Completed"
+        }
+    ]
+}
+```
+
+### Error Response (404)
+
+```json
+{
+    "success": false,
+    "message": "No bills found."
+}
+```
+
+---
+
+## 3. Get Bill By ID
+
+**Endpoint**
+
+```text
+GET /bills/{bill_id}
+```
+
+**Description**
+
+Retrieves a specific bill using its bill ID.
+
+### Example
+
+```text
+GET /bills/BILL001
+```
+
+### Success Response (200)
+
+```json
+{
+    "success": true,
+    "bill": {
+        "bill_id": "BILL001",
+        "customer_id": "CUS001",
+        "employee_id": "EMP001",
+        "table_id": "TABLE001",
+        "invoice_number": "INV-2026-0001",
+        "bill_date": "2026-08-09",
+        "total_amount": 1250.00,
+        "status": "Completed"
+    }
+}
+```
+
+### Error Response (404)
+
+```json
+{
+    "success": false,
+    "message": "Bill not found."
+}
+```
+
+---
+
+## 4. Update Bill
+
+**Endpoint**
+
+```text
+PUT /bills/{bill_id}
+```
+
+**Description**
+
+Updates an existing bill using its bill ID.
+
+### Example
+
+```text
+PUT /bills/BILL001
+```
+
+### Request Body
+
+```json
+{
+    "customer_id": "CUS001",
+    "employee_id": "EMP001",
+    "table_id": "TABLE001",
+    "invoice_number": "INV-2026-0001",
+    "bill_date": "2026-08-09",
+    "total_amount": 1350.00,
+    "status": "Completed"
+}
+```
+
+### Success Response (200)
+
+```json
+{
+    "success": true,
+    "message": "Bill updated successfully."
+}
+```
+
+### Error Response (400)
+
+```json
+{
+    "success": false,
+    "message": "Request body must be valid JSON."
+}
+```
+
+### Validation Error (400)
+
+```json
+{
+    "success": false,
+    "message": "All fields (customer_id, employee_id, table_id, invoice_number, bill_date, total_amount, status) are required."
+}
+```
+
+### Error Response (404)
+
+```json
+{
+    "success": false,
+    "message": "Bill not found."
+}
+```
+
+---
+
+## 5. Delete Bill
+
+**Endpoint**
+
+```text
+DELETE /bills/{bill_id}
+```
+
+**Description**
+
+Deletes an existing bill using its bill ID.
+
+### Example
+
+```text
+DELETE /bills/BILL001
+```
+
+### Success Response (200)
+
+```json
+{
+    "success": true,
+    "message": "Bill deleted successfully."
+}
+```
+
+### Error Response (404)
+
+```json
+{
+    "success": false,
+    "message": "Bill not found."
+}
+```
+
+### Referenced Bill Error (404)
+
+```json
+{
+    "success": false,
+    "message": "Bill cannot be deleted because it is referenced by existing records."
+}
+```
+
+---
+
+## Bill Fields
+
+| Field | Type | Description |
+|------|------|-------------|
+| bill_id | String | Unique bill ID |
+| customer_id | String | ID of the associated customer |
+| employee_id | String | ID of the employee who created the bill |
+| table_id | String | ID of the associated restaurant table |
+| invoice_number | String | Unique invoice number |
+| bill_date | String | Date the bill was created |
+| total_amount | Float | Total amount for the bill |
+| status | String | Current bill status |
+
+---
