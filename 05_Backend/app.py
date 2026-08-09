@@ -17,6 +17,7 @@ from routes.bill_item import bill_item_bp
 from routes.payment import payment_bp
 from routes.employee import employee_bp
 from routes.settings import settings_bp
+from routes.user import user_bp
 
 # Initialize Flask application
 app = Flask(__name__)
@@ -34,6 +35,7 @@ app.register_blueprint(bill_item_bp)
 app.register_blueprint(payment_bp)
 app.register_blueprint(employee_bp)
 app.register_blueprint(settings_bp)
+app.register_blueprint(user_bp)
 
 @app.route("/", methods=["GET"])
 def index():

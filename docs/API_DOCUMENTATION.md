@@ -2721,3 +2721,152 @@ tax_percentage is required.
 gst_number, address, phone, and email are optional.
 There are no declared foreign keys.
 There are no additional unique constraints.
+
+# User Management Module
+
+Base URL:
+
+```text
+http://127.0.0.1:5000
+
+1. Create User
+
+Endpoint
+
+POST /users
+
+Creates a new user account.
+
+Request Body
+{
+    "user_id": "USER002",
+    "employee_id": "EMP002",
+    "username": "testuser",
+    "password": "testpass123",
+    "role": "Staff",
+    "status": "Active"
+}
+Success Response (201)
+{
+    "success": true,
+    "message": "User added successfully."
+}
+Error Response (400)
+{
+    "success": false,
+    "message": "User ID, employee ID, or username already exists."
+}
+2. Get All Users
+
+Endpoint
+
+GET /users
+
+Retrieves all user records.
+
+Success Response (200)
+{
+    "success": true,
+    "users": [
+        {
+            "user_id": "USER001",
+            "employee_id": "EMP001",
+            "username": "admin",
+            "password": "********",
+            "role": "Admin",
+            "status": "Active"
+        }
+    ]
+}
+Error Response (404)
+{
+    "success": false,
+    "message": "No users found."
+}
+3. Get User By ID
+
+Endpoint
+
+GET /users/<user_id>
+
+Retrieves a specific user using the user ID.
+
+Success Response (200)
+{
+    "success": true,
+    "user": {
+        "user_id": "USER001",
+        "employee_id": "EMP001",
+        "username": "admin",
+        "password": "********",
+        "role": "Admin",
+        "status": "Active"
+    }
+}
+Error Response (404)
+{
+    "success": false,
+    "message": "User not found."
+}
+4. Update User
+
+Endpoint
+
+PUT /users/<user_id>
+
+Updates an existing user account.
+
+Request Body
+{
+    "employee_id": "EMP002",
+    "username": "updateduser",
+    "password": "updatedpass123",
+    "role": "Manager",
+    "status": "Active"
+}
+Success Response (200)
+{
+    "success": true,
+    "message": "User updated successfully."
+}
+Error Response (404)
+{
+    "success": false,
+    "message": "User not found."
+}
+5. Delete User
+
+Endpoint
+
+DELETE /users/<user_id>
+
+Deletes a user account using the user ID.
+
+Success Response (200)
+{
+    "success": true,
+    "message": "User deleted successfully."
+}
+Error Response (404)
+{
+    "success": false,
+    "message": "User not found."
+}
+User Fields
+Field	Type	Description
+user_id	TEXT	Unique user identifier
+employee_id	TEXT	Employee identifier associated with the user
+username	TEXT	Unique login username
+password	TEXT	User password
+role	TEXT	User role
+status	TEXT	User account status
+Constraints
+user_id is the primary key.
+employee_id is unique.
+username is unique and required.
+password is required.
+role is required.
+status is required.
+No foreign key is declared in the actual database.
+Authentication/login is handled separately by the Authentication module.
+User Management provides CRUD operations for user records.
