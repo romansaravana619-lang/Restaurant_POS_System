@@ -7,6 +7,7 @@ All business logic is delegated to the service layer.
 """
 
 from flask import Blueprint, request, jsonify
+from utils.auth_middleware import require_auth, require_role
 from services.customer_service import (
     add_customer,
     get_all_customers,
@@ -19,6 +20,8 @@ customer_bp = Blueprint('customer', __name__)
 
 
 @customer_bp.route('/customers', methods=['POST'])
+@require_auth
+@require_role("Admin", "Manager", "Staff")
 def create_customer():
     """
     Create a new customer.
@@ -70,6 +73,8 @@ def create_customer():
         return jsonify(result), 400
 
 @customer_bp.route("/customers", methods=["GET"])
+@require_auth
+@require_role("Admin", "Manager", "Staff")
 def get_customers():
     """
     Retrieve all registered customers.
@@ -85,6 +90,8 @@ def get_customers():
     return jsonify(result), 404
 
 @customer_bp.route("/customers/<customer_id>", methods=["GET"])
+@require_auth
+@require_role("Admin", "Manager", "Staff")
 def get_customer(customer_id):
     """
     Retrieve a single customer using customer_id.
@@ -98,6 +105,8 @@ def get_customer(customer_id):
     return jsonify(result), 404
 
 @customer_bp.route("/customers/<customer_id>", methods=["PUT"])
+@require_auth
+@require_role("Admin", "Manager", "Staff")
 def update_customer_route(customer_id):
     """
     Update an existing customer.
@@ -137,6 +146,8 @@ def update_customer_route(customer_id):
 
 
 @customer_bp.route("/customers/<customer_id>", methods=["DELETE"])
+@require_auth
+@require_role("Admin", "Manager")
 def delete_customer_route(customer_id):
     """
     Delete a customer using customer_id.

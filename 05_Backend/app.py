@@ -3,8 +3,10 @@ app.py
 
 Main Flask application entry point for Saru POS v1.0.
 """
+import os
 
 from flask import Flask, jsonify
+from werkzeug.exceptions import HTTPException
 from routes.auth import auth_bp
 from routes.customer import customer_bp
 from routes.supplier import supplier_bp
@@ -21,6 +23,21 @@ from routes.user import user_bp
 
 # Initialize Flask application
 app = Flask(__name__)
+
+@app.errorhandler(HTTPException)
+def handle_http_exception(error):
+    return jsonify({
+        "success": False,
+        "message": error.description
+    }), error.code
+
+
+@app.errorhandler(Exception)
+def handle_unexpected_exception(error):
+    return jsonify({
+        "success": False,
+        "message": "An internal server error occurred."
+    }), 500
 
 # Register blueprints
 app.register_blueprint(auth_bp)
@@ -46,8 +63,12 @@ def index():
     })
 
 if __name__ == "__main__":
+    debug_mode = os.getenv("SARU_POS_DEBUG", "false").lower() == "true"
+
+    app.config["DEBUG"] = debug_mode
+
     app.run(
-        debug=True,
+        debug=debug_mode,
         host="127.0.0.1",
         port=5000
     )

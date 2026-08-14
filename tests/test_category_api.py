@@ -1,15 +1,15 @@
-import requests
-
+﻿import requests
 
 BASE_URL = "http://127.0.0.1:5000"
 
 
-def test_category_crud():
+def test_category_crud(auth_headers):
     category_id = "TEST_CAT_001"
 
     # 1. Create Category
     create_response = requests.post(
         f"{BASE_URL}/categories",
+        headers=auth_headers,
         json={
             "category_id": category_id,
             "category_name": "Automated Test Category",
@@ -18,12 +18,16 @@ def test_category_crud():
         }
     )
 
+    print("CATEGORY STATUS:", create_response.status_code)
+    print("CATEGORY BODY:", create_response.text)
+
     assert create_response.status_code == 201
     assert create_response.json()["success"] is True
 
     # 2. Get Category
     get_response = requests.get(
-        f"{BASE_URL}/categories/{category_id}"
+        f"{BASE_URL}/categories/{category_id}",
+        headers=auth_headers
     )
 
     assert get_response.status_code == 200
@@ -33,6 +37,7 @@ def test_category_crud():
     # 3. Update Category
     update_response = requests.put(
         f"{BASE_URL}/categories/{category_id}",
+        headers=auth_headers,
         json={
             "category_name": "Updated Test Category",
             "description": "Updated category description",
@@ -45,7 +50,8 @@ def test_category_crud():
 
     # 4. Verify Update
     verify_response = requests.get(
-        f"{BASE_URL}/categories/{category_id}"
+        f"{BASE_URL}/categories/{category_id}",
+        headers=auth_headers
     )
 
     assert verify_response.status_code == 200
@@ -57,7 +63,8 @@ def test_category_crud():
 
     # 5. Delete Category
     delete_response = requests.delete(
-        f"{BASE_URL}/categories/{category_id}"
+        f"{BASE_URL}/categories/{category_id}",
+        headers=auth_headers
     )
 
     assert delete_response.status_code == 200
@@ -65,7 +72,8 @@ def test_category_crud():
 
     # 6. Verify Delete
     deleted_response = requests.get(
-        f"{BASE_URL}/categories/{category_id}"
+        f"{BASE_URL}/categories/{category_id}",
+        headers=auth_headers
     )
 
     assert deleted_response.status_code == 404

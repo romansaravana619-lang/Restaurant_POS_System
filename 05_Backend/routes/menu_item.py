@@ -1,45 +1,45 @@
-"""
+﻿"""
 Menu Item Routes Module
 
-This module initializes the Flask Blueprint for menu item management in the
-Saru POS v1.0 application. It defines the routing namespace and imports the
-necessary service functions required to handle operations such as adding,
-retrieving, updating, and deleting menu items.
+This module initializes the Flask Blueprint for menu item management
+in the Saru POS v1.0 application.
 """
 
-from unittest import result
-
 from flask import Blueprint, request, jsonify
+
+from utils.auth_middleware import require_auth, require_role
+from utils.validation import is_non_empty_string, is_number
 
 from services.menu_item_service import (
     add_menu_item,
     get_all_menu_items,
     get_menu_item_by_id,
     update_menu_item,
-    delete_menu_item
+    delete_menu_item,
 )
+
 
 menu_item_bp = Blueprint("menu_item", __name__)
 
-@menu_item_bp.route('/menu-items', methods=['POST'])
+
+@menu_item_bp.route("/menu-items", methods=["POST"])
+@require_auth
+@require_role("Admin", "Manager")
 def create_menu_item():
-    """
-    Creates a new menu item.
+    """Creates a new menu item."""
 
-    Expects a JSON payload with menu_item_id, category_id, item_name, 
-    price, description, and availability. Validates the input and calls 
-    the service layer to insert the record into the database.
-
-    Returns:
-        tuple: A JSON response containing the success status and message, 
-               along with the appropriate HTTP status code (201 on success, 
-               400 on bad request or failure).
-    """
     data = request.get_json(silent=True)
-    if not data:
+
+    if data is None:
         return jsonify({
             "success": False,
             "message": "Request body must be valid JSON."
+        }), 400
+
+    if not data:
+        return jsonify({
+            "success": False,
+            "message": "Request body cannot be empty."
         }), 400
 
     menu_item_id = data.get("menu_item_id")
@@ -49,10 +49,21 @@ def create_menu_item():
     description = data.get("description")
     availability = data.get("availability")
 
-    if not menu_item_id or not category_id or not item_name or price is None or str(price).strip() == "" or not description or not availability:
+    if not all([
+        is_non_empty_string(menu_item_id),
+        is_non_empty_string(category_id),
+        is_non_empty_string(item_name),
+        is_number(price),
+        is_non_empty_string(description),
+        is_non_empty_string(availability),
+    ]):
         return jsonify({
             "success": False,
-            "message": "All fields (menu_item_id, category_id, item_name, price, description, availability) are required."
+            "message": (
+                "All fields (menu_item_id, category_id, item_name, "
+                "price, description, availability) are required "
+                "and must have valid types."
+            )
         }), 400
 
     result = add_menu_item(
@@ -66,22 +77,16 @@ def create_menu_item():
 
     if result.get("success"):
         return jsonify(result), 201
-        return jsonify(result), 400
 
-@menu_item_bp.route('/menu-items', methods=['GET'])
+    return jsonify(result), 400
+
+
+@menu_item_bp.route("/menu-items", methods=["GET"])
+@require_auth
+@require_role("Admin", "Manager", "Staff")
 def get_menu_items():
-    """
-    Retrieves all menu items.
+    """Retrieves all menu items."""
 
-    Calls the service layer to fetch a list of all menu items from the 
-    database. If successful, returns the list with a 200 status code. 
-    If no items are found or an error occurs, returns a 404 status code.
-
-    Returns:
-        tuple: A JSON response containing the success status and the menu 
-               items data or an error message, along with the appropriate 
-               HTTP status code.
-    """
     result = get_all_menu_items()
 
     if result.get("success"):
@@ -89,24 +94,13 @@ def get_menu_items():
 
     return jsonify(result), 404
 
-@menu_item_bp.route('/menu-items/<menu_item_id>', methods=['GET'])
+
+@menu_item_bp.route("/menu-items/<menu_item_id>", methods=["GET"])
+@require_auth
+@require_role("Admin", "Manager", "Staff")
 def get_menu_item(menu_item_id):
-    """
-    Retrieves a specific menu item by its ID.
+    """Retrieves a specific menu item by its ID."""
 
-    Calls the service layer to fetch the menu item associated with the 
-    provided menu_item_id. If successful, returns the menu item data 
-    with a 200 status code. If the item is not found or an error occurs, 
-    returns a 404 status code.
-
-    Args:
-        menu_item_id (str): The unique identifier of the menu item to retrieve.
-
-    Returns:
-        tuple: A JSON response containing the success status and the menu 
-               item data or an error message, along with the appropriate 
-               HTTP status code.
-    """
     result = get_menu_item_by_id(menu_item_id)
 
     if result.get("success"):
@@ -114,28 +108,25 @@ def get_menu_item(menu_item_id):
 
     return jsonify(result), 404
 
-@menu_item_bp.route('/menu-items/<menu_item_id>', methods=['PUT'])
+
+@menu_item_bp.route("/menu-items/<menu_item_id>", methods=["PUT"])
+@require_auth
+@require_role("Admin", "Manager")
 def update_menu_item_route(menu_item_id):
-    """
-    Updates an existing menu item by its ID.
+    """Updates an existing menu item."""
 
-    Expects a JSON payload with category_id, item_name, price, 
-    description, and availability. Validates the input and calls 
-    the service layer to update the record in the database.
-
-    Args:
-        menu_item_id (str): The unique identifier of the menu item to update.
-
-    Returns:
-        tuple: A JSON response containing the success status and message, 
-               along with the appropriate HTTP status code (200 on success, 
-               400 on bad request, or 404 if not found/error).
-    """
     data = request.get_json(silent=True)
-    if not data:
+
+    if data is None:
         return jsonify({
             "success": False,
             "message": "Request body must be valid JSON."
+        }), 400
+
+    if not data:
+        return jsonify({
+            "success": False,
+            "message": "Request body cannot be empty."
         }), 400
 
     category_id = data.get("category_id")
@@ -144,10 +135,20 @@ def update_menu_item_route(menu_item_id):
     description = data.get("description")
     availability = data.get("availability")
 
-    if not category_id or not item_name or price is None or str(price).strip() == "" or not description or not availability:
+    if not all([
+        is_non_empty_string(category_id),
+        is_non_empty_string(item_name),
+        is_number(price),
+        is_non_empty_string(description),
+        is_non_empty_string(availability),
+    ]):
         return jsonify({
             "success": False,
-            "message": "All fields (category_id, item_name, price, description, availability) are required."
+            "message": (
+                "All fields (category_id, item_name, price, "
+                "description, availability) are required "
+                "and must have valid types."
+            )
         }), 400
 
     result = update_menu_item(
@@ -164,24 +165,13 @@ def update_menu_item_route(menu_item_id):
 
     return jsonify(result), 404
 
-@menu_item_bp.route('/menu-items/<menu_item_id>', methods=['DELETE'])
+
+@menu_item_bp.route("/menu-items/<menu_item_id>", methods=["DELETE"])
+@require_auth
+@require_role("Admin", "Manager")
 def delete_menu_item_route(menu_item_id):
-    """
-    Deletes an existing menu item by its ID.
+    """Deletes an existing menu item."""
 
-    Calls the service layer to remove the menu item associated with the 
-    provided menu_item_id from the database. If successful, returns a 
-    success message with a 200 status code. If the item is not found, 
-    cannot be deleted due to references, or an error occurs, returns a 
-    404 status code.
-
-    Args:
-        menu_item_id (str): The unique identifier of the menu item to delete.
-
-    Returns:
-        tuple: A JSON response containing the success status and message, 
-               along with the appropriate HTTP status code.
-    """
     result = delete_menu_item(menu_item_id)
 
     if result.get("success"):

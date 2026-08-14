@@ -1,16 +1,16 @@
-import requests
-
+﻿import requests
 
 BASE_URL = "http://127.0.0.1:5000"
 
 
-def test_inventory_crud():
+def test_inventory_crud(auth_headers):
     supplier_id = "TEST_SUP_INV_001"
     inventory_id = "TEST_INV_001"
 
     # 1. Create temporary supplier
     supplier_response = requests.post(
         f"{BASE_URL}/suppliers",
+        headers=auth_headers,
         json={
             "supplier_id": supplier_id,
             "supplier_name": "Inventory Test Supplier",
@@ -22,12 +22,16 @@ def test_inventory_crud():
         }
     )
 
+    print("SUPPLIER STATUS:", supplier_response.status_code)
+    print("SUPPLIER BODY:", supplier_response.text)
+
     assert supplier_response.status_code == 201
     assert supplier_response.json()["success"] is True
 
     # 2. Create inventory item
     create_response = requests.post(
         f"{BASE_URL}/inventory-items",
+        headers=auth_headers,
         json={
             "inventory_id": inventory_id,
             "supplier_id": supplier_id,
@@ -40,12 +44,16 @@ def test_inventory_crud():
         }
     )
 
+    print("INVENTORY STATUS:", create_response.status_code)
+    print("INVENTORY BODY:", create_response.text)
+
     assert create_response.status_code == 201
     assert create_response.json()["success"] is True
 
     # 3. Get inventory item
     get_response = requests.get(
-        f"{BASE_URL}/inventory-items/{inventory_id}"
+        f"{BASE_URL}/inventory-items/{inventory_id}",
+        headers=auth_headers
     )
 
     assert get_response.status_code == 200
@@ -55,6 +63,7 @@ def test_inventory_crud():
     # 4. Update inventory item
     update_response = requests.put(
         f"{BASE_URL}/inventory-items/{inventory_id}",
+        headers=auth_headers,
         json={
             "supplier_id": supplier_id,
             "item_name": "Updated Test Rice",
@@ -71,7 +80,8 @@ def test_inventory_crud():
 
     # 5. Verify update
     verify_response = requests.get(
-        f"{BASE_URL}/inventory-items/{inventory_id}"
+        f"{BASE_URL}/inventory-items/{inventory_id}",
+        headers=auth_headers
     )
 
     assert verify_response.status_code == 200
@@ -84,7 +94,8 @@ def test_inventory_crud():
 
     # 6. Delete inventory item
     delete_response = requests.delete(
-        f"{BASE_URL}/inventory-items/{inventory_id}"
+        f"{BASE_URL}/inventory-items/{inventory_id}",
+        headers=auth_headers
     )
 
     assert delete_response.status_code == 200
@@ -92,7 +103,8 @@ def test_inventory_crud():
 
     # 7. Verify inventory item deleted
     deleted_response = requests.get(
-        f"{BASE_URL}/inventory-items/{inventory_id}"
+        f"{BASE_URL}/inventory-items/{inventory_id}",
+        headers=auth_headers
     )
 
     assert deleted_response.status_code == 404
@@ -100,7 +112,8 @@ def test_inventory_crud():
 
     # 8. Delete temporary supplier
     cleanup_response = requests.delete(
-        f"{BASE_URL}/suppliers/{supplier_id}"
+        f"{BASE_URL}/suppliers/{supplier_id}",
+        headers=auth_headers
     )
 
     assert cleanup_response.status_code == 200

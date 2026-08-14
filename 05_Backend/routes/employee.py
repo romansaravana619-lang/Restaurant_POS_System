@@ -1,4 +1,4 @@
-"""
+﻿"""
 Employee Routes Module
 
 This module defines the Flask routes for employee management
@@ -6,6 +6,8 @@ in the Saru POS v1.0 application.
 """
 
 from flask import Blueprint, request, jsonify
+
+from utils.auth_middleware import require_auth, require_role
 
 from services.employee_service import (
     add_employee,
@@ -20,15 +22,11 @@ employee_bp = Blueprint("employee", __name__)
 
 
 @employee_bp.route("/employees", methods=["POST"])
+@require_auth
+@require_role("Admin", "Manager")
 def create_employee():
-    """Creates a new employee.
+    """Creates a new employee."""
 
-    Reads employee details from the request body, validates the input,
-    and creates a new employee record through the service layer.
-
-    Returns:
-        tuple: A JSON response and the corresponding HTTP status code.
-    """
     data = request.get_json(silent=True)
 
     if not data:
@@ -61,7 +59,10 @@ def create_employee():
     ):
         return jsonify({
             "success": False,
-            "message": "Required fields (employee_id, full_name, role, status) are missing."
+            "message": (
+                "Required fields (employee_id, full_name, "
+                "role, status) are missing."
+            )
         }), 400
 
     optional_string_fields = [
@@ -102,12 +103,11 @@ def create_employee():
 
 
 @employee_bp.route("/employees", methods=["GET"])
+@require_auth
+@require_role("Admin", "Manager")
 def get_employees():
-    """Retrieves all employees.
+    """Retrieves all employees."""
 
-    Returns:
-        tuple: A JSON response and the corresponding HTTP status code.
-    """
     result = get_all_employees()
 
     if result.get("success"):
@@ -117,15 +117,11 @@ def get_employees():
 
 
 @employee_bp.route("/employees/<employee_id>", methods=["GET"])
+@require_auth
+@require_role("Admin", "Manager")
 def get_employee(employee_id):
-    """Retrieves an employee by its ID.
+    """Retrieves an employee by its ID."""
 
-    Args:
-        employee_id (str): The unique identifier for the employee.
-
-    Returns:
-        tuple: A JSON response and the corresponding HTTP status code.
-    """
     result = get_employee_by_id(employee_id)
 
     if result.get("success"):
@@ -135,15 +131,11 @@ def get_employee(employee_id):
 
 
 @employee_bp.route("/employees/<employee_id>", methods=["PUT"])
+@require_auth
+@require_role("Admin", "Manager")
 def update_employee_route(employee_id):
-    """Updates an existing employee.
+    """Updates an existing employee."""
 
-    Args:
-        employee_id (str): The unique identifier for the employee.
-
-    Returns:
-        tuple: A JSON response and the corresponding HTTP status code.
-    """
     data = request.get_json(silent=True)
 
     if not data:
@@ -174,7 +166,10 @@ def update_employee_route(employee_id):
     ):
         return jsonify({
             "success": False,
-            "message": "Required fields (full_name, role, status) are missing."
+            "message": (
+                "Required fields (full_name, role, "
+                "status) are missing."
+            )
         }), 400
 
     optional_string_fields = [
@@ -215,15 +210,11 @@ def update_employee_route(employee_id):
 
 
 @employee_bp.route("/employees/<employee_id>", methods=["DELETE"])
+@require_auth
+@require_role("Admin", "Manager")
 def delete_employee_route(employee_id):
-    """Deletes an employee by its ID.
+    """Deletes an employee by its ID."""
 
-    Args:
-        employee_id (str): The unique identifier for the employee.
-
-    Returns:
-        tuple: A JSON response and the corresponding HTTP status code.
-    """
     result = delete_employee(employee_id)
 
     if result.get("success"):

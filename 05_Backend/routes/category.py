@@ -1,4 +1,4 @@
-"""
+﻿"""
 Routes for managing categories in the Saru POS v1.0 application.
 
 This module sets up the Flask Blueprint and imports the required
@@ -6,6 +6,10 @@ service functions for category management endpoints.
 """
 
 from flask import Blueprint, request, jsonify
+
+from utils.auth_middleware import require_auth, require_role
+
+from utils.validation import is_non_empty_string
 
 from services.category_service import (
     add_category,
@@ -15,24 +19,28 @@ from services.category_service import (
     delete_category,
 )
 
+
 category_bp = Blueprint("category", __name__)
 
+
 @category_bp.route("/categories", methods=["POST"])
+@require_auth
+@require_role("Admin", "Manager")
 def create_category():
-    """Creates a new category.
+    """Creates a new category."""
 
-    Reads category details from the request body, validates the input,
-    and creates a new category record.
+    data = request.get_json(silent=True)
 
-    Returns:
-        tuple: A tuple containing the JSON response and HTTP status code.
-    """
-    data = request.get_json(silent=True) or {}
+    if data is None:
+        return jsonify({
+            "success": False,
+            "message": "Request body must be valid JSON."
+        }), 400
 
     if not data:
         return jsonify({
             "success": False,
-            "message": "Request body must be valid JSON."
+            "message": "Request body cannot be empty."
         }), 400
 
     category_id = data.get("category_id")
@@ -41,14 +49,17 @@ def create_category():
     status = data.get("status")
 
     if not all([
-        category_id,
-        category_name,
-        description,
-        status
+        is_non_empty_string(category_id),
+        is_non_empty_string(category_name),
+        is_non_empty_string(description),
+        is_non_empty_string(status)
     ]):
         return jsonify({
             "success": False,
-            "message": "All fields (category_id, category_name, description, status) are required."
+            "message": (
+                "All fields (category_id, category_name, "
+                "description, status) are required and must be valid strings."
+            )
         }), 400
 
     result = add_category(
@@ -63,13 +74,13 @@ def create_category():
 
     return jsonify(result), 400
 
-@category_bp.route("/categories", methods=["GET"])
-def get_categories():
-    """Retrieves all categories.
 
-    Returns:
-        tuple: A tuple containing the JSON response and HTTP status code.
-    """
+@category_bp.route("/categories", methods=["GET"])
+@require_auth
+@require_role("Admin", "Manager", "Staff")
+def get_categories():
+    """Retrieves all categories."""
+
     result = get_all_categories()
 
     if result.get("success"):
@@ -77,16 +88,13 @@ def get_categories():
 
     return jsonify(result), 404
 
+
 @category_bp.route("/categories/<category_id>", methods=["GET"])
+@require_auth
+@require_role("Admin", "Manager", "Staff")
 def get_category(category_id):
-    """Retrieves a specific category by its ID.
+    """Retrieves a specific category by its ID."""
 
-    Args:
-        category_id (str): The unique identifier of the category.
-
-    Returns:
-        tuple: A tuple containing the JSON response and HTTP status code.
-    """
     result = get_category_by_id(category_id)
 
     if result.get("success"):
@@ -94,24 +102,25 @@ def get_category(category_id):
 
     return jsonify(result), 404
 
+
 @category_bp.route("/categories/<category_id>", methods=["PUT"])
+@require_auth
+@require_role("Admin", "Manager")
 def update_category_route(category_id):
-    """Updates an existing category.
+    """Updates an existing category."""
 
-    Expects a JSON payload containing the updated category details.
-
-    Args:
-        category_id (str): The unique identifier of the category.
-
-    Returns:
-        tuple: A tuple containing the JSON response and HTTP status code.
-    """
     data = request.get_json(silent=True)
+
+    if data is None:
+        return jsonify({
+            "success": False,
+            "message": "Request body must be valid JSON."
+        }), 400
 
     if not data:
         return jsonify({
             "success": False,
-            "message": "Request body must be valid JSON."
+            "message": "Request body cannot be empty."
         }), 400
 
     category_name = data.get("category_name")
@@ -119,13 +128,16 @@ def update_category_route(category_id):
     status = data.get("status")
 
     if not all([
-        category_name,
-        description,
-        status
+        is_non_empty_string(category_name),
+        is_non_empty_string(description),
+        is_non_empty_string(status)
     ]):
         return jsonify({
             "success": False,
-            "message": "All fields (category_name, description, status) are required."
+            "message": (
+                "All fields (category_name, description, "
+                "status) are required and must be valid strings."
+            )
         }), 400
 
     result = update_category(
@@ -141,19 +153,15 @@ def update_category_route(category_id):
     return jsonify(result), 404
 
 @category_bp.route("/categories/<category_id>", methods=["DELETE"])
+@require_auth
+@require_role("Admin", "Manager")
 def delete_category_route(category_id):
-    """Deletes a specific category by its ID.
+    """Deletes a specific category by its ID."""
 
-    Args:
-        category_id (str): The unique identifier of the category.
-
-    Returns:
-        tuple: A tuple containing the JSON response and HTTP status code.
-    """
     result = delete_category(category_id)
 
     if result.get("success"):
         return jsonify(result), 200
 
     return jsonify(result), 404
-
+       

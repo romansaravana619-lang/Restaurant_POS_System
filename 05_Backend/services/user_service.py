@@ -109,7 +109,6 @@ def get_all_users() -> dict:
                 user_id,
                 employee_id,
                 username,
-                password,
                 role,
                 status
             FROM users
@@ -164,7 +163,6 @@ def get_user_by_id(user_id: str) -> dict:
                 user_id,
                 employee_id,
                 username,
-                password,
                 role,
                 status
             FROM users

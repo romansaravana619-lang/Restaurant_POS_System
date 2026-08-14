@@ -1,4 +1,4 @@
-"""
+﻿"""
 Billing Routes Module
 
 This module defines the Flask routes for billing management
@@ -6,6 +6,7 @@ in the Saru POS v1.0 application.
 """
 
 from flask import Blueprint, request, jsonify
+from utils.auth_middleware import require_auth, require_role
 
 from services.billing_service import (
     add_bill,
@@ -19,15 +20,11 @@ billing_bp = Blueprint("billing", __name__)
 
 
 @billing_bp.route("/bills", methods=["POST"])
+@require_auth
+@require_role("Admin", "Manager", "Staff")
 def create_bill():
-    """Creates a new bill.
+    """Creates a new bill."""
 
-    Reads bill details from the request body, validates the input, and
-    creates a new bill record through the service layer.
-
-    Returns:
-        tuple: A JSON response and the corresponding HTTP status code.
-    """
     data = request.get_json(silent=True)
 
     if not data:
@@ -56,13 +53,19 @@ def create_bill():
     ]
 
     if (
-        not all(isinstance(field, str) and field.strip() for field in string_fields)
+        not all(
+            isinstance(field, str) and field.strip()
+            for field in string_fields
+        )
         or total_amount is None
         or total_amount == ""
     ):
         return jsonify({
             "success": False,
-            "message": "All fields (bill_id, customer_id, employee_id, table_id, invoice_number, bill_date, total_amount, status) are required."
+            "message": (
+                "All fields (bill_id, customer_id, employee_id, table_id, "
+                "invoice_number, bill_date, total_amount, status) are required."
+            )
         }), 400
 
     result = add_bill(
@@ -83,12 +86,11 @@ def create_bill():
 
 
 @billing_bp.route("/bills", methods=["GET"])
+@require_auth
+@require_role("Admin", "Manager", "Staff")
 def get_bills():
-    """Retrieves all bills.
+    """Retrieves all bills."""
 
-    Returns:
-        tuple: A JSON response and the corresponding HTTP status code.
-    """
     result = get_all_bills()
 
     if result.get("success"):
@@ -98,15 +100,11 @@ def get_bills():
 
 
 @billing_bp.route("/bills/<bill_id>", methods=["GET"])
+@require_auth
+@require_role("Admin", "Manager", "Staff")
 def get_bill(bill_id):
-    """Retrieves a bill by its ID.
+    """Retrieves a bill by its ID."""
 
-    Args:
-        bill_id (str): The unique identifier for the bill.
-
-    Returns:
-        tuple: A JSON response and the corresponding HTTP status code.
-    """
     result = get_bill_by_id(bill_id)
 
     if result.get("success"):
@@ -114,17 +112,12 @@ def get_bill(bill_id):
 
     return jsonify(result), 404
 
-
 @billing_bp.route("/bills/<bill_id>", methods=["PUT"])
+@require_auth
+@require_role("Admin", "Manager")
 def update_bill_route(bill_id):
-    """Updates an existing bill.
+    """Updates an existing bill."""
 
-    Args:
-        bill_id (str): The unique identifier for the bill.
-
-    Returns:
-        tuple: A JSON response and the corresponding HTTP status code.
-    """
     data = request.get_json(silent=True)
 
     if not data:
@@ -151,13 +144,20 @@ def update_bill_route(bill_id):
     ]
 
     if (
-        not all(isinstance(field, str) and field.strip() for field in string_fields)
+        not all(
+            isinstance(field, str) and field.strip()
+            for field in string_fields
+        )
         or total_amount is None
         or total_amount == ""
     ):
         return jsonify({
             "success": False,
-            "message": "All fields (customer_id, employee_id, table_id, invoice_number, bill_date, total_amount, status) are required."
+            "message": (
+                "All fields (customer_id, employee_id, table_id, "
+                "invoice_number, bill_date, total_amount, status) "
+                "are required."
+            )
         }), 400
 
     result = update_bill(
@@ -176,17 +176,12 @@ def update_bill_route(bill_id):
 
     return jsonify(result), 404
 
-
 @billing_bp.route("/bills/<bill_id>", methods=["DELETE"])
+@require_auth
+@require_role("Admin", "Manager")
 def delete_bill_route(bill_id):
-    """Deletes a bill by its ID.
+    """Deletes a bill by its ID."""
 
-    Args:
-        bill_id (str): The unique identifier for the bill.
-
-    Returns:
-        tuple: A JSON response and the corresponding HTTP status code.
-    """
     result = delete_bill(bill_id)
 
     if result.get("success"):

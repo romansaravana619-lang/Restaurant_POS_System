@@ -1,4 +1,4 @@
-"""
+﻿"""
 Restaurant Table Routes Module
 
 This module initializes the Flask Blueprint for restaurant table management in 
@@ -8,6 +8,7 @@ retrieving, updating, and deleting restaurant tables.
 """
 
 from flask import Blueprint, request, jsonify
+from utils.auth_middleware import require_auth, require_role
 from services.restaurant_table_service import (
     add_restaurant_table,
     get_all_restaurant_tables,
@@ -19,6 +20,8 @@ from services.restaurant_table_service import (
 restaurant_table_bp = Blueprint("restaurant_table", __name__)
 
 @restaurant_table_bp.route('/restaurant-tables', methods=['POST'])
+@require_auth
+@require_role("Admin", "Manager", "Staff")
 def create_restaurant_table():
     """
     Creates a new restaurant table.
@@ -63,6 +66,8 @@ def create_restaurant_table():
     return jsonify(result), 400
 
 @restaurant_table_bp.route('/restaurant-tables', methods=['GET'])
+@require_auth
+@require_role("Admin", "Manager", "Staff")
 def get_restaurant_tables():
     """
     Retrieves all restaurant tables.
@@ -85,6 +90,8 @@ def get_restaurant_tables():
     return jsonify(result), 404
 
 @restaurant_table_bp.route('/restaurant-tables/<table_id>', methods=['GET'])
+@require_auth
+@require_role("Admin", "Manager", "Staff")
 def get_restaurant_table(table_id):
     """
     Retrieves a specific restaurant table by its ID.
@@ -110,6 +117,8 @@ def get_restaurant_table(table_id):
     return jsonify(result), 404
 
 @restaurant_table_bp.route('/restaurant-tables/<table_id>', methods=['PUT'])
+@require_auth
+@require_role("Admin", "Manager", "Staff")
 def update_restaurant_table_route(table_id):
     """
     Updates an existing restaurant table by its ID.
@@ -156,6 +165,8 @@ def update_restaurant_table_route(table_id):
     return jsonify(result), 404
 
 @restaurant_table_bp.route('/restaurant-tables/<table_id>', methods=['DELETE'])
+@require_auth
+@require_role("Admin", "Manager")
 def delete_restaurant_table_route(table_id):
     """
     Deletes an existing restaurant table by its ID.

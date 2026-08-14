@@ -1,4 +1,4 @@
-"""
+﻿"""
 Payment Routes Module
 
 This module defines the Flask routes for payment management
@@ -6,6 +6,7 @@ in the Saru POS v1.0 application.
 """
 
 from flask import Blueprint, request, jsonify
+from utils.auth_middleware import require_auth
 
 from services.payment_service import (
     add_payment,
@@ -20,6 +21,7 @@ payment_bp = Blueprint("payment", __name__)
 
 
 @payment_bp.route("/payments", methods=["POST"])
+@require_auth
 def create_payment():
     """Creates a new payment.
 
@@ -81,6 +83,7 @@ def create_payment():
 
 
 @payment_bp.route("/payments", methods=["GET"])
+@require_auth
 def get_payments():
     """Retrieves all payments.
 
@@ -96,6 +99,7 @@ def get_payments():
 
 
 @payment_bp.route("/payments/<payment_id>", methods=["GET"])
+@require_auth
 def get_payment(payment_id):
     """Retrieves a payment by its ID.
 
@@ -114,6 +118,7 @@ def get_payment(payment_id):
 
 
 @payment_bp.route("/payments/<payment_id>", methods=["PUT"])
+@require_auth
 def update_payment_route(payment_id):
     """Updates an existing payment.
 
@@ -173,6 +178,7 @@ def update_payment_route(payment_id):
 
 
 @payment_bp.route("/payments/<payment_id>", methods=["DELETE"])
+@require_auth
 def delete_payment_route(payment_id):
     """Deletes a payment by its ID.
 

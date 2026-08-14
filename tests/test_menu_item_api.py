@@ -1,16 +1,16 @@
-import requests
-
+﻿import requests
 
 BASE_URL = "http://127.0.0.1:5000"
 
 
-def test_menu_item_crud():
+def test_menu_item_crud(auth_headers):
     category_id = "TEST_CAT_MENU_001"
     menu_item_id = "TEST_MENU_001"
 
     # 1. Create temporary category
     category_response = requests.post(
         f"{BASE_URL}/categories",
+        headers=auth_headers,
         json={
             "category_id": category_id,
             "category_name": "Menu Test Category",
@@ -19,12 +19,16 @@ def test_menu_item_crud():
         }
     )
 
+    print("CATEGORY STATUS:", category_response.status_code)
+    print("CATEGORY BODY:", category_response.text)
+
     assert category_response.status_code == 201
     assert category_response.json()["success"] is True
 
     # 2. Create menu item
     create_response = requests.post(
         f"{BASE_URL}/menu-items",
+        headers=auth_headers,
         json={
             "menu_item_id": menu_item_id,
             "category_id": category_id,
@@ -35,12 +39,16 @@ def test_menu_item_crud():
         }
     )
 
+    print("MENU STATUS:", create_response.status_code)
+    print("MENU BODY:", create_response.text)
+
     assert create_response.status_code == 201
     assert create_response.json()["success"] is True
 
     # 3. Get menu item
     get_response = requests.get(
-        f"{BASE_URL}/menu-items/{menu_item_id}"
+        f"{BASE_URL}/menu-items/{menu_item_id}",
+        headers=auth_headers
     )
 
     assert get_response.status_code == 200
@@ -50,6 +58,7 @@ def test_menu_item_crud():
     # 4. Update menu item
     update_response = requests.put(
         f"{BASE_URL}/menu-items/{menu_item_id}",
+        headers=auth_headers,
         json={
             "category_id": category_id,
             "item_name": "Updated Test Fried Rice",
@@ -64,7 +73,8 @@ def test_menu_item_crud():
 
     # 5. Verify update
     verify_response = requests.get(
-        f"{BASE_URL}/menu-items/{menu_item_id}"
+        f"{BASE_URL}/menu-items/{menu_item_id}",
+        headers=auth_headers
     )
 
     assert verify_response.status_code == 200
@@ -77,7 +87,8 @@ def test_menu_item_crud():
 
     # 6. Delete menu item
     delete_response = requests.delete(
-        f"{BASE_URL}/menu-items/{menu_item_id}"
+        f"{BASE_URL}/menu-items/{menu_item_id}",
+        headers=auth_headers
     )
 
     assert delete_response.status_code == 200
@@ -85,7 +96,8 @@ def test_menu_item_crud():
 
     # 7. Verify menu item deleted
     deleted_response = requests.get(
-        f"{BASE_URL}/menu-items/{menu_item_id}"
+        f"{BASE_URL}/menu-items/{menu_item_id}",
+        headers=auth_headers
     )
 
     assert deleted_response.status_code == 404
@@ -93,7 +105,8 @@ def test_menu_item_crud():
 
     # 8. Delete temporary category
     cleanup_response = requests.delete(
-        f"{BASE_URL}/categories/{category_id}"
+        f"{BASE_URL}/categories/{category_id}",
+        headers=auth_headers
     )
 
     assert cleanup_response.status_code == 200

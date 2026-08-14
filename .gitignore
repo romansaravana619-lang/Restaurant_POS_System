@@ -23,3 +23,8 @@ __pycache__/
 
 *.db-wal
 *.db-shm
+
+# Security backup copies
+
+05_Backend/routes_backup_security/
+tests_backup_security/

@@ -1,4 +1,4 @@
-"""
+﻿"""
 Settings Routes Module
 
 This module defines the Flask routes for restaurant settings management
@@ -6,6 +6,8 @@ in the Saru POS v1.0 application.
 """
 
 from flask import Blueprint, request, jsonify
+
+from utils.auth_middleware import require_auth, require_role
 
 from services.settings_service import (
     add_setting,
@@ -20,15 +22,11 @@ settings_bp = Blueprint("settings", __name__)
 
 
 @settings_bp.route("/settings", methods=["POST"])
+@require_auth
+@require_role("Admin", "Manager")
 def create_setting():
-    """Creates a new settings record.
+    """Creates a new settings record."""
 
-    Reads settings details from the request body, validates the input,
-    and creates a new settings record through the service layer.
-
-    Returns:
-        tuple: A JSON response and the corresponding HTTP status code.
-    """
     data = request.get_json(silent=True)
 
     if not data:
@@ -58,7 +56,10 @@ def create_setting():
     ):
         return jsonify({
             "success": False,
-            "message": "Required fields (setting_id, restaurant_name, currency) are missing."
+            "message": (
+                "Required fields (setting_id, restaurant_name, "
+                "currency) are missing."
+            )
         }), 400
 
     optional_string_fields = [
@@ -99,12 +100,11 @@ def create_setting():
 
 
 @settings_bp.route("/settings", methods=["GET"])
+@require_auth
+@require_role("Admin", "Manager")
 def get_settings():
-    """Retrieves all settings records.
+    """Retrieves all settings records."""
 
-    Returns:
-        tuple: A JSON response and the corresponding HTTP status code.
-    """
     result = get_all_settings()
 
     if result.get("success"):
@@ -114,15 +114,11 @@ def get_settings():
 
 
 @settings_bp.route("/settings/<setting_id>", methods=["GET"])
+@require_auth
+@require_role("Admin", "Manager")
 def get_setting(setting_id):
-    """Retrieves a settings record by its ID.
+    """Retrieves a settings record by its ID."""
 
-    Args:
-        setting_id (str): The unique identifier for the settings record.
-
-    Returns:
-        tuple: A JSON response and the corresponding HTTP status code.
-    """
     result = get_setting_by_id(setting_id)
 
     if result.get("success"):
@@ -132,15 +128,11 @@ def get_setting(setting_id):
 
 
 @settings_bp.route("/settings/<setting_id>", methods=["PUT"])
+@require_auth
+@require_role("Admin", "Manager")
 def update_setting_route(setting_id):
-    """Updates an existing settings record.
+    """Updates an existing settings record."""
 
-    Args:
-        setting_id (str): The unique identifier for the settings record.
-
-    Returns:
-        tuple: A JSON response and the corresponding HTTP status code.
-    """
     data = request.get_json(silent=True)
 
     if not data:
@@ -168,7 +160,10 @@ def update_setting_route(setting_id):
     ):
         return jsonify({
             "success": False,
-            "message": "Required fields (restaurant_name, currency) are missing."
+            "message": (
+                "Required fields (restaurant_name, currency) "
+                "are missing."
+            )
         }), 400
 
     optional_string_fields = [
@@ -209,15 +204,11 @@ def update_setting_route(setting_id):
 
 
 @settings_bp.route("/settings/<setting_id>", methods=["DELETE"])
+@require_auth
+@require_role("Admin", "Manager")
 def delete_setting_route(setting_id):
-    """Deletes a settings record by its ID.
+    """Deletes a settings record by its ID."""
 
-    Args:
-        setting_id (str): The unique identifier for the settings record.
-
-    Returns:
-        tuple: A JSON response and the corresponding HTTP status code.
-    """
     result = delete_setting(setting_id)
 
     if result.get("success"):

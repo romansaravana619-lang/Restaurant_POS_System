@@ -1,4 +1,4 @@
-"""
+﻿"""
 User Management Routes Module
 
 This module defines the Flask routes for user management
@@ -6,6 +6,8 @@ in the Saru POS v1.0 application.
 """
 
 from flask import Blueprint, request, jsonify
+
+from utils.auth_middleware import require_auth, require_role
 
 from services.user_service import (
     add_user,
@@ -20,15 +22,11 @@ user_bp = Blueprint("user", __name__)
 
 
 @user_bp.route("/users", methods=["POST"])
+@require_auth
+@require_role("Admin")
 def create_user():
-    """Creates a new user.
+    """Creates a new user."""
 
-    Reads user details from the request body, validates the input,
-    and creates a new user record through the service layer.
-
-    Returns:
-        tuple: A JSON response and the corresponding HTTP status code.
-    """
     data = request.get_json(silent=True)
 
     if not data:
@@ -59,7 +57,10 @@ def create_user():
     ):
         return jsonify({
             "success": False,
-            "message": "All fields (user_id, employee_id, username, password, role, status) are required."
+            "message": (
+                "All fields (user_id, employee_id, username, "
+                "password, role, status) are required."
+            )
         }), 400
 
     result = add_user(
@@ -78,12 +79,11 @@ def create_user():
 
 
 @user_bp.route("/users", methods=["GET"])
+@require_auth
+@require_role("Admin")
 def get_users():
-    """Retrieves all users.
+    """Retrieves all users."""
 
-    Returns:
-        tuple: A JSON response and the corresponding HTTP status code.
-    """
     result = get_all_users()
 
     if result.get("success"):
@@ -93,15 +93,11 @@ def get_users():
 
 
 @user_bp.route("/users/<user_id>", methods=["GET"])
+@require_auth
+@require_role("Admin")
 def get_user(user_id):
-    """Retrieves a user by its ID.
+    """Retrieves a user by its ID."""
 
-    Args:
-        user_id (str): The unique identifier for the user.
-
-    Returns:
-        tuple: A JSON response and the corresponding HTTP status code.
-    """
     result = get_user_by_id(user_id)
 
     if result.get("success"):
@@ -111,15 +107,11 @@ def get_user(user_id):
 
 
 @user_bp.route("/users/<user_id>", methods=["PUT"])
+@require_auth
+@require_role("Admin")
 def update_user_route(user_id):
-    """Updates an existing user.
+    """Updates an existing user."""
 
-    Args:
-        user_id (str): The unique identifier for the user.
-
-    Returns:
-        tuple: A JSON response and the corresponding HTTP status code.
-    """
     data = request.get_json(silent=True)
 
     if not data:
@@ -148,7 +140,10 @@ def update_user_route(user_id):
     ):
         return jsonify({
             "success": False,
-            "message": "All fields (employee_id, username, password, role, status) are required."
+            "message": (
+                "All fields (employee_id, username, password, "
+                "role, status) are required."
+            )
         }), 400
 
     result = update_user(
@@ -167,15 +162,11 @@ def update_user_route(user_id):
 
 
 @user_bp.route("/users/<user_id>", methods=["DELETE"])
+@require_auth
+@require_role("Admin")
 def delete_user_route(user_id):
-    """Deletes a user by its ID.
+    """Deletes a user by its ID."""
 
-    Args:
-        user_id (str): The unique identifier for the user.
-
-    Returns:
-        tuple: A JSON response and the corresponding HTTP status code.
-    """
     result = delete_user(user_id)
 
     if result.get("success"):

@@ -1,4 +1,4 @@
-"""
+﻿"""
 Bill Item Routes Module
 
 This module defines the Flask routes for bill item management
@@ -6,6 +6,7 @@ in the Saru POS v1.0 application.
 """
 
 from flask import Blueprint, request, jsonify
+from utils.auth_middleware import require_auth
 
 from services.bill_item_service import (
     add_bill_item,
@@ -19,6 +20,7 @@ bill_item_bp = Blueprint("bill_item", __name__)
 
 
 @bill_item_bp.route("/bill-items", methods=["POST"])
+@require_auth
 def create_bill_item():
     """Creates a new bill item.
 
@@ -75,6 +77,7 @@ def create_bill_item():
 
 
 @bill_item_bp.route("/bill-items", methods=["GET"])
+@require_auth
 def get_bill_items():
     """Retrieves all bill items.
 
@@ -90,6 +93,7 @@ def get_bill_items():
 
 
 @bill_item_bp.route("/bill-items/<bill_item_id>", methods=["GET"])
+@require_auth
 def get_bill_item(bill_item_id):
     """Retrieves a bill item by its ID.
 
@@ -108,6 +112,7 @@ def get_bill_item(bill_item_id):
 
 
 @bill_item_bp.route("/bill-items/<bill_item_id>", methods=["PUT"])
+@require_auth
 def update_bill_item_route(bill_item_id):
     """Updates an existing bill item.
 
@@ -163,6 +168,7 @@ def update_bill_item_route(bill_item_id):
 
 
 @bill_item_bp.route("/bill-items/<bill_item_id>", methods=["DELETE"])
+@require_auth
 def delete_bill_item_route(bill_item_id):
     """Deletes a bill item by its ID.
 
@@ -178,3 +184,4 @@ def delete_bill_item_route(bill_item_id):
         return jsonify(result), 200
 
     return jsonify(result), 404
+

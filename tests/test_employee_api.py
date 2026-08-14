@@ -1,15 +1,15 @@
-import requests
-
+﻿import requests
 
 BASE_URL = "http://127.0.0.1:5000"
 
 
-def test_employee_crud():
+def test_employee_crud(auth_headers):
     employee_id = "TEST_EMP_001"
 
     # 1. Create Employee
     create_response = requests.post(
         f"{BASE_URL}/employees",
+        headers=auth_headers,
         json={
             "employee_id": employee_id,
             "full_name": "Automated Test Employee",
@@ -24,12 +24,16 @@ def test_employee_crud():
         }
     )
 
+    print("EMPLOYEE STATUS:", create_response.status_code)
+    print("EMPLOYEE BODY:", create_response.text)
+
     assert create_response.status_code == 201
     assert create_response.json()["success"] is True
 
     # 2. Get Employee
     get_response = requests.get(
-        f"{BASE_URL}/employees/{employee_id}"
+        f"{BASE_URL}/employees/{employee_id}",
+        headers=auth_headers
     )
 
     assert get_response.status_code == 200
@@ -39,6 +43,7 @@ def test_employee_crud():
     # 3. Update Employee
     update_response = requests.put(
         f"{BASE_URL}/employees/{employee_id}",
+        headers=auth_headers,
         json={
             "full_name": "Updated Test Employee",
             "phone": "9876500002",
@@ -57,7 +62,8 @@ def test_employee_crud():
 
     # 4. Verify Update
     verify_response = requests.get(
-        f"{BASE_URL}/employees/{employee_id}"
+        f"{BASE_URL}/employees/{employee_id}",
+        headers=auth_headers
     )
 
     assert verify_response.status_code == 200
@@ -73,7 +79,8 @@ def test_employee_crud():
 
     # 5. Delete Employee
     delete_response = requests.delete(
-        f"{BASE_URL}/employees/{employee_id}"
+        f"{BASE_URL}/employees/{employee_id}",
+        headers=auth_headers
     )
 
     assert delete_response.status_code == 200
@@ -81,7 +88,8 @@ def test_employee_crud():
 
     # 6. Verify Delete
     deleted_response = requests.get(
-        f"{BASE_URL}/employees/{employee_id}"
+        f"{BASE_URL}/employees/{employee_id}",
+        headers=auth_headers
     )
 
     assert deleted_response.status_code == 404

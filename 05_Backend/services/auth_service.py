@@ -10,6 +10,7 @@ import sqlite3
 
 from argon2 import PasswordHasher
 from argon2.exceptions import InvalidHashError, VerificationError
+from utils.jwt_utils import create_access_token
 
 from connection import get_connection, close_connection
 
@@ -105,6 +106,7 @@ def verify_user(username, password):
         return {
             "success": True,
             "user": user,
+            "access_token": create_access_token(user),
         }
 
     except sqlite3.Error as db_error:

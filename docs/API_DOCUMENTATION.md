@@ -1,16 +1,95 @@
 # Saru POS API Documentation
 
-Version: v1.0
+**Version:** v1.0
 
----
+## API Overview
+
+-   **Base URL:** `http://127.0.0.1:5000`
+-   **Total API routes:** 61
+-   **API modules:** 13
+-   **Authentication:** JWT Bearer token
+-   **JWT algorithm:** HS256
+-   **JWT expiration:** 60 minutes
+
+### Route Inventory
+
+  Module               Routes
+  ------------------ --------
+  Authentication            1
+  Customer                  5
+  Supplier                  5
+  Inventory                 5
+  Category                  5
+  Menu Item                 5
+  Restaurant Table          5
+  Billing                   5
+  Bill Item                 5
+  Payment                   5
+  Employee                  5
+  Settings                  5
+  User Management           5
+  **Total**            **61**
+
+------------------------------------------------------------------------
 
 # Authentication Module
 
----
+------------------------------------------------------------------------
 
 ## 1. Login API
 
-### Endpoint
+------------------------------------------------------------------------
+
+## JWT Authentication
+
+Protected endpoints use JWT authentication.
+
+### Authorization Header
+
+``` http
+Authorization: Bearer <access_token>
+```
+
+### Token Details
+
+  Property          Value
+  ----------------- ----------------------------------------
+  Algorithm         HS256
+  Expiration        60 minutes
+  Required header   `Authorization: Bearer <access_token>`
+
+### Authentication Errors
+
+Missing token:
+
+``` json
+{
+    "success": false,
+    "message": "Authentication token is required."
+}
+```
+
+Invalid or expired token:
+
+``` json
+{
+    "success": false,
+    "message": "Invalid or expired authentication token."
+}
+```
+
+### JWT Claims
+
+The access token contains:
+
+-   `user_id`
+-   `employee_id`
+-   `username`
+-   `role`
+-   `iat`
+-   `exp`
+
+## Endpoint
 
 POST /login
 
@@ -20,7 +99,7 @@ Authenticates a user and returns the logged-in user details.
 
 ### Request Body
 
-```json
+``` json
 {
     "username": "admin",
     "password": "admin123"
@@ -29,7 +108,7 @@ Authenticates a user and returns the logged-in user details.
 
 ### Success Response (200)
 
-```json
+``` json
 {
     "success": true,
     "user": {
@@ -38,24 +117,59 @@ Authenticates a user and returns the logged-in user details.
         "username": "admin",
         "role": "Admin",
         "status": "Active"
-    }
+    },
+    "access_token": "<jwt_access_token>"
 }
 ```
 
 ### Error Response (401)
 
-```json
+``` json
 {
     "success": false,
     "message": "Invalid username or password."
 }
 ```
 
----
+------------------------------------------------------------------------
+
+# Authorization / Role-Based Access Control
+
+The backend enforces role checks across the following route modules:
+
+  Module              Admin   Manager   Staff
+  ------------------ ------- --------- -------
+  Billing               ✓        ✓       ✓\*
+  Category              ✓        ✓       ✓\*
+  Customer              ✓        ✓       ✓\*
+  Employee              ✓        ✓       ---
+  Inventory             ✓        ✓       ✓\*
+  Menu Item             ✓        ✓       ✓\*
+  Restaurant Table      ✓        ✓       ✓\*
+  Settings              ✓        ✓       ---
+  Supplier              ✓        ✓       ✓\*
+  User Management       ✓       ---      ---
+
+`*` Read/create/update operations that are explicitly allowed by the
+route-level role checks. Delete operations are restricted to
+Admin/Manager where implemented.
+
+Unauthorized access returns:
+
+``` json
+{
+    "success": false,
+    "message": "You do not have permission to access this resource."
+}
+```
+
+**Status Code:** `403 Forbidden`
+
+------------------------------------------------------------------------
 
 # Customer Module
 
----
+------------------------------------------------------------------------
 
 ## 2. Add Customer
 
@@ -69,7 +183,7 @@ Creates a new customer in the Saru POS system.
 
 ### Request Body
 
-```json
+``` json
 {
     "customer_id": "CUS001",
     "customer_name": "Saravana Kumar",
@@ -81,7 +195,7 @@ Creates a new customer in the Saru POS system.
 
 ### Success Response (201)
 
-```json
+``` json
 {
     "success": true,
     "message": "Customer added successfully."
@@ -90,14 +204,14 @@ Creates a new customer in the Saru POS system.
 
 ### Error Response (400)
 
-```json
+``` json
 {
     "success": false,
     "message": "Customer ID already exists."
 }
 ```
 
----
+------------------------------------------------------------------------
 
 ## 3. Get All Customers
 
@@ -115,7 +229,7 @@ Not Required
 
 ### Success Response (200)
 
-```json
+``` json
 {
     "success": true,
     "customers": [
@@ -132,14 +246,14 @@ Not Required
 
 ### Error Response (404)
 
-```json
+``` json
 {
     "success": false,
     "message": "No customers found."
 }
 ```
 
----
+------------------------------------------------------------------------
 
 ## 4. Get Customer By ID
 
@@ -161,7 +275,7 @@ Not Required
 
 ### Success Response (200)
 
-```json
+``` json
 {
     "success": true,
     "customer": {
@@ -176,14 +290,14 @@ Not Required
 
 ### Error Response (404)
 
-```json
+``` json
 {
     "success": false,
     "message": "Customer not found."
 }
 ```
 
----
+------------------------------------------------------------------------
 
 ## 5. Update Customer
 
@@ -201,7 +315,7 @@ PUT /customers/CUS001
 
 ### Request Body
 
-```json
+``` json
 {
     "customer_name": "Saravana Kumar Updated",
     "phone": "9999999999",
@@ -212,7 +326,7 @@ PUT /customers/CUS001
 
 ### Success Response (200)
 
-```json
+``` json
 {
     "success": true,
     "message": "Customer updated successfully."
@@ -221,14 +335,14 @@ PUT /customers/CUS001
 
 ### Error Response (404)
 
-```json
+``` json
 {
     "success": false,
     "message": "Customer not found."
 }
 ```
 
----
+------------------------------------------------------------------------
 
 ## 6. Delete Customer
 
@@ -250,7 +364,7 @@ Not Required
 
 ### Success Response (200)
 
-```json
+``` json
 {
     "success": true,
     "message": "Customer deleted successfully."
@@ -259,36 +373,19 @@ Not Required
 
 ### Error Response (404)
 
-```json
+``` json
 {
     "success": false,
     "message": "Customer not found."
 }
 ```
 
----
+------------------------------------------------------------------------
 
-# HTTP Status Codes
 
-| Status Code | Description |
-|-------------|-------------|
-| 200 | Request completed successfully |
-| 201 | Resource created successfully |
-| 400 | Invalid request or validation error |
-| 401 | Authentication failed |
-| 404 | Requested resource not found |
+# Supplier Module
 
----
-
-# Version History
-
-| Version | Description |
-|---------|-------------|
-| v1.0 | Authentication Module + Customer CRUD Module Completed |
-
-# Supplier APIs
-
----
+------------------------------------------------------------------------
 
 ## POST /suppliers
 
@@ -298,7 +395,7 @@ Creates a new supplier record in the system.
 
 ### Request Body
 
-```json
+``` json
 {
     "supplier_id": "SUP001",
     "supplier_name": "ABC Foods",
@@ -312,7 +409,7 @@ Creates a new supplier record in the system.
 
 ### Success Response
 
-```json
+``` json
 {
     "success": true,
     "message": "Supplier added successfully."
@@ -321,7 +418,7 @@ Creates a new supplier record in the system.
 
 **Status Code:** `201 Created`
 
----
+------------------------------------------------------------------------
 
 ## GET /suppliers
 
@@ -331,7 +428,7 @@ Retrieves all suppliers available in the system.
 
 ### Success Response
 
-```json
+``` json
 {
     "success": true,
     "suppliers": [
@@ -350,7 +447,7 @@ Retrieves all suppliers available in the system.
 
 **Status Code:** `200 OK`
 
----
+------------------------------------------------------------------------
 
 ## GET /suppliers/{supplier_id}
 
@@ -360,13 +457,13 @@ Retrieves a supplier using the unique supplier ID.
 
 ### Example
 
-```http
+``` http
 GET /suppliers/SUP001
 ```
 
 ### Success Response
 
-```json
+``` json
 {
     "success": true,
     "supplier": {
@@ -383,7 +480,7 @@ GET /suppliers/SUP001
 
 **Status Code:** `200 OK`
 
----
+------------------------------------------------------------------------
 
 ## PUT /suppliers/{supplier_id}
 
@@ -393,13 +490,13 @@ Updates an existing supplier.
 
 ### Example
 
-```http
+``` http
 PUT /suppliers/SUP001
 ```
 
 ### Request Body
 
-```json
+``` json
 {
     "supplier_name": "ABC Foods Pvt Ltd",
     "contact_person": "Rajesh Kumar",
@@ -412,7 +509,7 @@ PUT /suppliers/SUP001
 
 ### Success Response
 
-```json
+``` json
 {
     "success": true,
     "message": "Supplier updated successfully."
@@ -421,7 +518,7 @@ PUT /suppliers/SUP001
 
 **Status Code:** `200 OK`
 
----
+------------------------------------------------------------------------
 
 ## DELETE /suppliers/{supplier_id}
 
@@ -431,13 +528,13 @@ Deletes an existing supplier from the system.
 
 ### Example
 
-```http
+``` http
 DELETE /suppliers/SUP001
 ```
 
 ### Success Response
 
-```json
+``` json
 {
     "success": true,
     "message": "Supplier deleted successfully."
@@ -446,11 +543,11 @@ DELETE /suppliers/SUP001
 
 **Status Code:** `200 OK`
 
----
+------------------------------------------------------------------------
 
 ## Error Response Format
 
-```json
+``` json
 {
     "success": false,
     "message": "Supplier not found."
@@ -459,36 +556,28 @@ DELETE /suppliers/SUP001
 
 **Common Status Codes**
 
-| Status Code | Description |
-|-------------|-------------|
-| 200 | Request completed successfully |
-| 201 | Supplier created successfully |
-| 400 | Invalid request body or validation failed |
-| 404 | Supplier not found |
-| 500 | Internal server error |
+\| Status Code \| Description \| \|-------------\|-------------\| \| 200
+\| Request completed successfully \| \| 201 \| Supplier created
+successfully \| \| 400 \| Invalid request body or validation failed \|
+\| 404 \| Supplier not found \| \| 500 \| Internal server error \|
 
----
+------------------------------------------------------------------------
 
-
----
+------------------------------------------------------------------------
 
 # Inventory Module
 
 Base URL:
 
-```
-http://127.0.0.1:5000
-```
+    http\://127.0.0.1:5000
 
----
+------------------------------------------------------------------------
 
 ## 1. Create Inventory Item
 
 **Endpoint**
 
-```
-POST /inventory-items
-```
+    POST /inventory-items
 
 **Description**
 
@@ -496,7 +585,7 @@ Creates a new inventory item.
 
 ### Request Body
 
-```json
+``` json
 {
     "inventory_id": "INV001",
     "supplier_id": "SUP001",
@@ -511,7 +600,7 @@ Creates a new inventory item.
 
 ### Success Response (201)
 
-```json
+``` json
 {
     "success": true,
     "message": "Inventory item added successfully."
@@ -520,22 +609,20 @@ Creates a new inventory item.
 
 ### Error Response (400)
 
-```json
+``` json
 {
     "success": false,
     "message": "Inventory ID already exists."
 }
 ```
 
----
+------------------------------------------------------------------------
 
 ## 2. Get All Inventory Items
 
 **Endpoint**
 
-```
-GET /inventory-items
-```
+    GET /inventory-items
 
 **Description**
 
@@ -543,7 +630,7 @@ Retrieves all inventory items from the database.
 
 ### Success Response (200)
 
-```json
+``` json
 {
     "success": true,
     "inventory_items": [
@@ -563,28 +650,24 @@ Retrieves all inventory items from the database.
 
 ### Error Response (404)
 
-```json
+``` json
 {
     "success": false,
     "message": "No inventory items found."
 }
 ```
 
----
+------------------------------------------------------------------------
 
 ## 3. Get Inventory Item By ID
 
 **Endpoint**
 
-```
-GET /inventory-items/{inventory_id}
-```
+    GET /inventory-items/{inventory_id}
 
 ### Example
 
-```
-GET /inventory-items/INV001
-```
+    GET /inventory-items/INV001
 
 **Description**
 
@@ -592,7 +675,7 @@ Retrieves a specific inventory item using its inventory ID.
 
 ### Success Response (200)
 
-```json
+``` json
 {
     "success": true,
     "inventory_item": {
@@ -610,32 +693,28 @@ Retrieves a specific inventory item using its inventory ID.
 
 ### Error Response (404)
 
-```json
+``` json
 {
     "success": false,
     "message": "Inventory item not found."
 }
 ```
 
----
+------------------------------------------------------------------------
 
 ## 4. Update Inventory Item
 
 **Endpoint**
 
-```
-PUT /inventory-items/{inventory_id}
-```
+    PUT /inventory-items/{inventory_id}
 
 ### Example
 
-```
-PUT /inventory-items/INV001
-```
+    PUT /inventory-items/INV001
 
 ### Request Body
 
-```json
+``` json
 {
     "supplier_id": "SUP001",
     "item_name": "Basmati Rice Premium",
@@ -649,7 +728,7 @@ PUT /inventory-items/INV001
 
 ### Success Response (200)
 
-```json
+``` json
 {
     "success": true,
     "message": "Inventory item updated successfully."
@@ -658,28 +737,24 @@ PUT /inventory-items/INV001
 
 ### Error Response (404)
 
-```json
+``` json
 {
     "success": false,
     "message": "Inventory item not found."
 }
 ```
 
----
+------------------------------------------------------------------------
 
 ## 5. Delete Inventory Item
 
 **Endpoint**
 
-```
-DELETE /inventory-items/{inventory_id}
-```
+    DELETE /inventory-items/{inventory_id}
 
 ### Example
 
-```
-DELETE /inventory-items/INV001
-```
+    DELETE /inventory-items/INV001
 
 **Description**
 
@@ -687,7 +762,7 @@ Deletes an inventory item from the database.
 
 ### Success Response (200)
 
-```json
+``` json
 {
     "success": true,
     "message": "Inventory item deleted successfully."
@@ -696,49 +771,43 @@ Deletes an inventory item from the database.
 
 ### Error Response (404)
 
-```json
+``` json
 {
     "success": false,
     "message": "Inventory item not found."
 }
 ```
 
----
+------------------------------------------------------------------------
 
 ## Inventory Item Fields
 
-| Field | Type | Description |
-|------|------|-------------|
-| inventory_id | String | Unique inventory item ID |
-| supplier_id | String | Supplier ID (Foreign Key) |
-| item_name | String | Inventory item name |
-| unit | String | Unit of measurement (kg, litre, piece, bottle, etc.) |
-| quantity | Float | Current available stock quantity |
-| unit_cost | Float | Cost per unit |
-| reorder_level | Float | Minimum stock level before reordering |
-| status | String | Inventory item status (Active / Inactive) |
+\| Field \| Type \| Description \| \|------\|------\|-------------\| \|
+inventory_id \| String \| Unique inventory item ID \| \| supplier_id \|
+String \| Supplier ID (Foreign Key) \| \| item_name \| String \|
+Inventory item name \| \| unit \| String \| Unit of measurement (kg,
+litre, piece, bottle, etc.) \| \| quantity \| Float \| Current available
+stock quantity \| \| unit_cost \| Float \| Cost per unit \| \|
+reorder_level \| Float \| Minimum stock level before reordering \| \|
+status \| String \| Inventory item status (Active / Inactive) \|
 
----
+------------------------------------------------------------------------
 
----
+------------------------------------------------------------------------
 
 # Category Module
 
 Base URL:
 
-```
-http://127.0.0.1:5000
-```
+    http\://127.0.0.1:5000
 
----
+------------------------------------------------------------------------
 
 ## 1. Create Category
 
 **Endpoint**
 
-```
-POST /categories
-```
+    POST /categories
 
 **Description**
 
@@ -746,7 +815,7 @@ Creates a new menu category.
 
 ### Request Body
 
-```json
+``` json
 {
     "category_id": "CAT001",
     "category_name": "Main Course",
@@ -757,7 +826,7 @@ Creates a new menu category.
 
 ### Success Response (201)
 
-```json
+``` json
 {
     "success": true,
     "message": "Category added successfully."
@@ -766,22 +835,20 @@ Creates a new menu category.
 
 ### Error Response (400)
 
-```json
+``` json
 {
     "success": false,
     "message": "Category with this ID or name already exists."
 }
 ```
 
----
+------------------------------------------------------------------------
 
 ## 2. Get All Categories
 
 **Endpoint**
 
-```
-GET /categories
-```
+    GET /categories
 
 **Description**
 
@@ -789,7 +856,7 @@ Retrieves all categories ordered alphabetically.
 
 ### Success Response (200)
 
-```json
+``` json
 {
     "success": true,
     "categories": [
@@ -805,32 +872,28 @@ Retrieves all categories ordered alphabetically.
 
 ### Error Response (404)
 
-```json
+``` json
 {
     "success": false,
     "message": "No categories found."
 }
 ```
 
----
+------------------------------------------------------------------------
 
 ## 3. Get Category By ID
 
 **Endpoint**
 
-```
-GET /categories/{category_id}
-```
+    GET /categories/{category_id}
 
 ### Example
 
-```
-GET /categories/CAT001
-```
+    GET /categories/CAT001
 
 ### Success Response (200)
 
-```json
+``` json
 {
     "success": true,
     "category": {
@@ -844,32 +907,28 @@ GET /categories/CAT001
 
 ### Error Response (404)
 
-```json
+``` json
 {
     "success": false,
     "message": "Category not found."
 }
 ```
 
----
+------------------------------------------------------------------------
 
 ## 4. Update Category
 
 **Endpoint**
 
-```
-PUT /categories/{category_id}
-```
+    PUT /categories/{category_id}
 
 ### Example
 
-```
-PUT /categories/CAT001
-```
+    PUT /categories/CAT001
 
 ### Request Body
 
-```json
+``` json
 {
     "category_name": "Main Course",
     "description": "Updated category description",
@@ -879,7 +938,7 @@ PUT /categories/CAT001
 
 ### Success Response (200)
 
-```json
+``` json
 {
     "success": true,
     "message": "Category updated successfully."
@@ -888,32 +947,28 @@ PUT /categories/CAT001
 
 ### Error Response (404)
 
-```json
+``` json
 {
     "success": false,
     "message": "Category not found."
 }
 ```
 
----
+------------------------------------------------------------------------
 
 ## 5. Delete Category
 
 **Endpoint**
 
-```
-DELETE /categories/{category_id}
-```
+    DELETE /categories/{category_id}
 
 ### Example
 
-```
-DELETE /categories/CAT001
-```
+    DELETE /categories/CAT001
 
 ### Success Response (200)
 
-```json
+``` json
 {
     "success": true,
     "message": "Category deleted successfully."
@@ -922,275 +977,53 @@ DELETE /categories/CAT001
 
 ### Error Response (404)
 
-```json
+``` json
 {
     "success": false,
     "message": "Category not found."
 }
 ```
 
----
+------------------------------------------------------------------------
 
 ## Category Fields
 
-| Field | Type | Description |
-|------|------|-------------|
-| category_id | String | Unique category ID |
-| category_name | String | Category name |
-| description | String | Category description |
-| status | String | Category status (Active / Inactive) |
-
----
-
----
-
-# Category Module
-
-Base URL:
-
-```
-http://127.0.0.1:5000
-```
-
----
-
-## 1. Create Category
-
-**Endpoint**
-
-```
-POST /categories
-```
-
-**Description**
-
-Creates a new menu category.
-
-### Request Body
-
-```json
-{
-    "category_id": "CAT001",
-    "category_name": "Main Course",
-    "description": "Main food items",
-    "status": "Active"
-}
-```
-
-### Success Response (201)
-
-```json
-{
-    "success": true,
-    "message": "Category added successfully."
-}
-```
-
-### Error Response (400)
-
-```json
-{
-    "success": false,
-    "message": "Category with this ID or name already exists."
-}
-```
-
----
-
-## 2. Get All Categories
-
-**Endpoint**
-
-```
-GET /categories
-```
-
-**Description**
-
-Retrieves all categories ordered alphabetically.
-
-### Success Response (200)
-
-```json
-{
-    "success": true,
-    "categories": [
-        {
-            "category_id": "CAT001",
-            "category_name": "Main Course",
-            "description": "Main food items",
-            "status": "Active"
-        }
-    ]
-}
-```
-
-### Error Response (404)
-
-```json
-{
-    "success": false,
-    "message": "No categories found."
-}
-```
-
----
-
-## 3. Get Category By ID
-
-**Endpoint**
-
-```
-GET /categories/{category_id}
-```
-
-### Example
-
-```
-GET /categories/CAT001
-```
-
-### Success Response (200)
-
-```json
-{
-    "success": true,
-    "category": {
-        "category_id": "CAT001",
-        "category_name": "Main Course",
-        "description": "Main food items",
-        "status": "Active"
-    }
-}
-```
-
-### Error Response (404)
-
-```json
-{
-    "success": false,
-    "message": "Category not found."
-}
-```
-
----
-
-## 4. Update Category
-
-**Endpoint**
-
-```
-PUT /categories/{category_id}
-```
-
-### Example
-
-```
-PUT /categories/CAT001
-```
-
-### Request Body
-
-```json
-{
-    "category_name": "Main Course",
-    "description": "Updated category description",
-    "status": "Active"
-}
-```
-
-### Success Response (200)
-
-```json
-{
-    "success": true,
-    "message": "Category updated successfully."
-}
-```
-
-### Error Response (404)
-
-```json
-{
-    "success": false,
-    "message": "Category not found."
-}
-```
-
----
-
-## 5. Delete Category
-
-**Endpoint**
-
-```
-DELETE /categories/{category_id}
-```
-
-### Example
-
-```
-DELETE /categories/CAT001
-```
-
-### Success Response (200)
-
-```json
-{
-    "success": true,
-    "message": "Category deleted successfully."
-}
-```
-
-### Error Response (404)
-
-```json
-{
-    "success": false,
-    "message": "Category not found."
-}
-```
-
----
-
-## Category Fields
-
-| Field | Type | Description |
-|------|------|-------------|
-| category_id | String | Unique category ID |
-| category_name | String | Category name |
-| description | String | Category description |
-| status | String | Category status (Active / Inactive) |
-
----
-
----
+\| Field \| Type \| Description \| \|------\|------\|-------------\| \|
+category_id \| String \| Unique category ID \| \| category_name \|
+String \| Category name \| \| description \| String \| Category
+description \| \| status \| String \| Category status (Active /
+Inactive) \|
+
+------------------------------------------------------------------------
+
+------------------------------------------------------------------------
 
 # Menu Item Module
 
 Base URL:
 
-```text
-http://127.0.0.1:5000
+``` text
+http\://127.0.0.1:5000
 ```
 
----
+------------------------------------------------------------------------
 
 ## 1. Create Menu Item
 
 **Endpoint**
 
-```text
+``` text
 POST /menu-items
 ```
 
 **Description**
 
-Creates a new menu item and associates it with an existing menu category.
+Creates a new menu item and associates it with an existing menu
+category.
 
 ### Request Body
 
-```json
+``` json
 {
     "menu_item_id": "MENU001",
     "category_id": "CAT100",
@@ -1203,7 +1036,7 @@ Creates a new menu item and associates it with an existing menu category.
 
 ### Success Response (201)
 
-```json
+``` json
 {
     "success": true,
     "message": "Menu item added successfully."
@@ -1212,20 +1045,20 @@ Creates a new menu item and associates it with an existing menu category.
 
 ### Error Response (400)
 
-```json
+``` json
 {
     "success": false,
     "message": "Menu item with this ID already exists or category does not exist."
 }
 ```
 
----
+------------------------------------------------------------------------
 
 ## 2. Get All Menu Items
 
 **Endpoint**
 
-```text
+``` text
 GET /menu-items
 ```
 
@@ -1235,7 +1068,7 @@ Retrieves all menu items ordered alphabetically by item name.
 
 ### Success Response (200)
 
-```json
+``` json
 {
     "success": true,
     "menu_items": [
@@ -1253,32 +1086,32 @@ Retrieves all menu items ordered alphabetically by item name.
 
 ### Error Response (404)
 
-```json
+``` json
 {
     "success": false,
     "message": "No menu items found."
 }
 ```
 
----
+------------------------------------------------------------------------
 
 ## 3. Get Menu Item By ID
 
 **Endpoint**
 
-```text
+``` text
 GET /menu-items/{menu_item_id}
 ```
 
 ### Example
 
-```text
+``` text
 GET /menu-items/MENU001
 ```
 
 ### Success Response (200)
 
-```json
+``` json
 {
     "success": true,
     "menu_item": {
@@ -1294,32 +1127,32 @@ GET /menu-items/MENU001
 
 ### Error Response (404)
 
-```json
+``` json
 {
     "success": false,
     "message": "Menu item not found."
 }
 ```
 
----
+------------------------------------------------------------------------
 
 ## 4. Update Menu Item
 
 **Endpoint**
 
-```text
+``` text
 PUT /menu-items/{menu_item_id}
 ```
 
 ### Example
 
-```text
+``` text
 PUT /menu-items/MENU001
 ```
 
 ### Request Body
 
-```json
+``` json
 {
     "category_id": "CAT100",
     "item_name": "Tomato Soup Special",
@@ -1331,7 +1164,7 @@ PUT /menu-items/MENU001
 
 ### Success Response (200)
 
-```json
+``` json
 {
     "success": true,
     "message": "Menu item updated successfully."
@@ -1340,32 +1173,32 @@ PUT /menu-items/MENU001
 
 ### Error Response (404)
 
-```json
+``` json
 {
     "success": false,
     "message": "Menu item not found."
 }
 ```
 
----
+------------------------------------------------------------------------
 
 ## 5. Delete Menu Item
 
 **Endpoint**
 
-```text
+``` text
 DELETE /menu-items/{menu_item_id}
 ```
 
 ### Example
 
-```text
+``` text
 DELETE /menu-items/MENU001
 ```
 
 ### Success Response (200)
 
-```json
+``` json
 {
     "success": true,
     "message": "Menu item deleted successfully."
@@ -1374,7 +1207,7 @@ DELETE /menu-items/MENU001
 
 ### Error Response (404)
 
-```json
+``` json
 {
     "success": false,
     "message": "Menu item not found."
@@ -1385,31 +1218,29 @@ DELETE /menu-items/MENU001
 
 If the menu item is referenced by an existing billing record:
 
-```json
+``` json
 {
     "success": false,
     "message": "Menu item cannot be deleted because it is referenced by existing records."
 }
 ```
 
----
+------------------------------------------------------------------------
 
 ## Menu Item Fields
 
-| Field | Type | Description |
-|------|------|-------------|
-| menu_item_id | String | Unique menu item ID |
-| category_id | String | ID of the associated menu category |
-| item_name | String | Name of the menu item |
-| price | Float | Selling price of the menu item |
-| description | String | Description of the menu item |
-| availability | String | Availability status of the menu item |
+\| Field \| Type \| Description \| \|------\|------\|-------------\| \|
+menu_item_id \| String \| Unique menu item ID \| \| category_id \|
+String \| ID of the associated menu category \| \| item_name \| String
+\| Name of the menu item \| \| price \| Float \| Selling price of the
+menu item \| \| description \| String \| Description of the menu item \|
+\| availability \| String \| Availability status of the menu item \|
 
----
+------------------------------------------------------------------------
 
 ## Menu Item Relationship
 
-```text
+``` text
 categories
      │
      │ category_id
@@ -1421,31 +1252,31 @@ menu_items
 bill_items
 ```
 
----
+------------------------------------------------------------------------
 
----
+------------------------------------------------------------------------
 
 # Restaurant Table Module
 
 Base URL:
 
-```text
-http://127.0.0.1:5000
+``` text
+http\://127.0.0.1:5000
 ```
 
----
+------------------------------------------------------------------------
 
 ## 1. Create Restaurant Table
 
 **Endpoint**
 
-```text
+``` text
 POST /restaurant-tables
 ```
 
 ### Request Body
 
-```json
+``` json
 {
     "table_id": "TABLE001",
     "table_number": "T01",
@@ -1456,7 +1287,7 @@ POST /restaurant-tables
 
 ### Success Response (201)
 
-```json
+``` json
 {
     "success": true,
     "message": "Restaurant table added successfully."
@@ -1465,26 +1296,26 @@ POST /restaurant-tables
 
 ### Error Response (400)
 
-```json
+``` json
 {
     "success": false,
     "message": "Restaurant table with this ID or table number already exists."
 }
 ```
 
----
+------------------------------------------------------------------------
 
 ## 2. Get All Restaurant Tables
 
 **Endpoint**
 
-```text
+``` text
 GET /restaurant-tables
 ```
 
 ### Success Response (200)
 
-```json
+``` json
 {
     "success": true,
     "restaurant_tables": [
@@ -1500,32 +1331,32 @@ GET /restaurant-tables
 
 ### Error Response (404)
 
-```json
+``` json
 {
     "success": false,
     "message": "No restaurant tables found."
 }
 ```
 
----
+------------------------------------------------------------------------
 
 ## 3. Get Restaurant Table By ID
 
 **Endpoint**
 
-```text
+``` text
 GET /restaurant-tables/{table_id}
 ```
 
 ### Example
 
-```text
+``` text
 GET /restaurant-tables/TABLE001
 ```
 
 ### Success Response (200)
 
-```json
+``` json
 {
     "success": true,
     "restaurant_table": {
@@ -1539,32 +1370,32 @@ GET /restaurant-tables/TABLE001
 
 ### Error Response (404)
 
-```json
+``` json
 {
     "success": false,
     "message": "Restaurant table not found."
 }
 ```
 
----
+------------------------------------------------------------------------
 
 ## 4. Update Restaurant Table
 
 **Endpoint**
 
-```text
+``` text
 PUT /restaurant-tables/{table_id}
 ```
 
 ### Example
 
-```text
+``` text
 PUT /restaurant-tables/TABLE001
 ```
 
 ### Request Body
 
-```json
+``` json
 {
     "table_number": "T01",
     "capacity": 6,
@@ -1574,7 +1405,7 @@ PUT /restaurant-tables/TABLE001
 
 ### Success Response (200)
 
-```json
+``` json
 {
     "success": true,
     "message": "Restaurant table updated successfully."
@@ -1583,32 +1414,32 @@ PUT /restaurant-tables/TABLE001
 
 ### Error Response (404)
 
-```json
+``` json
 {
     "success": false,
     "message": "Restaurant table not found."
 }
 ```
 
----
+------------------------------------------------------------------------
 
 ## 5. Delete Restaurant Table
 
 **Endpoint**
 
-```text
+``` text
 DELETE /restaurant-tables/{table_id}
 ```
 
 ### Example
 
-```text
+``` text
 DELETE /restaurant-tables/TABLE001
 ```
 
 ### Success Response (200)
 
-```json
+``` json
 {
     "success": true,
     "message": "Restaurant table deleted successfully."
@@ -1617,7 +1448,7 @@ DELETE /restaurant-tables/TABLE001
 
 ### Error Response (404)
 
-```json
+``` json
 {
     "success": false,
     "message": "Restaurant table not found."
@@ -1628,41 +1459,40 @@ DELETE /restaurant-tables/TABLE001
 
 If the restaurant table is referenced by an existing bill:
 
-```json
+``` json
 {
     "success": false,
     "message": "Restaurant table cannot be deleted because it is referenced by existing records."
 }
 ```
 
----
+------------------------------------------------------------------------
 
 ## Restaurant Table Fields
 
-| Field | Type | Description |
-|------|------|-------------|
-| table_id | String | Unique restaurant table ID |
-| table_number | String | Unique table number or name |
-| capacity | Integer | Maximum seating capacity |
-| status | String | Current table status |
+\| Field \| Type \| Description \| \|------\|------\|-------------\| \|
+table_id \| String \| Unique restaurant table ID \| \| table_number \|
+String \| Unique table number or name \| \| capacity \| Integer \|
+Maximum seating capacity \| \| status \| String \| Current table status
+\|
 
----
+------------------------------------------------------------------------
 
 # Billing Module
 
 Base URL:
 
-```text
-http://127.0.0.1:5000
+``` text
+http\://127.0.0.1:5000
 ```
 
----
+------------------------------------------------------------------------
 
 ## 1. Create Bill
 
 **Endpoint**
 
-```text
+``` text
 POST /bills
 ```
 
@@ -1672,7 +1502,7 @@ Creates a new bill for a customer, employee, and restaurant table.
 
 ### Request Body
 
-```json
+``` json
 {
     "bill_id": "BILL001",
     "customer_id": "CUS001",
@@ -1687,7 +1517,7 @@ Creates a new bill for a customer, employee, and restaurant table.
 
 ### Success Response (201)
 
-```json
+``` json
 {
     "success": true,
     "message": "Bill added successfully."
@@ -1696,7 +1526,7 @@ Creates a new bill for a customer, employee, and restaurant table.
 
 ### Error Response (400)
 
-```json
+``` json
 {
     "success": false,
     "message": "Request body must be valid JSON."
@@ -1705,7 +1535,7 @@ Creates a new bill for a customer, employee, and restaurant table.
 
 ### Validation Error (400)
 
-```json
+``` json
 {
     "success": false,
     "message": "All fields (bill_id, customer_id, employee_id, table_id, invoice_number, bill_date, total_amount, status) are required."
@@ -1714,20 +1544,20 @@ Creates a new bill for a customer, employee, and restaurant table.
 
 ### Service Error (400)
 
-```json
+``` json
 {
     "success": false,
     "message": "Bill with this ID or invoice number already exists, or a referenced record does not exist."
 }
 ```
 
----
+------------------------------------------------------------------------
 
 ## 2. Get All Bills
 
 **Endpoint**
 
-```text
+``` text
 GET /bills
 ```
 
@@ -1737,7 +1567,7 @@ Retrieves all bills ordered by bill date in descending order.
 
 ### Success Response (200)
 
-```json
+``` json
 {
     "success": true,
     "bills": [
@@ -1757,20 +1587,20 @@ Retrieves all bills ordered by bill date in descending order.
 
 ### Error Response (404)
 
-```json
+``` json
 {
     "success": false,
     "message": "No bills found."
 }
 ```
 
----
+------------------------------------------------------------------------
 
 ## 3. Get Bill By ID
 
 **Endpoint**
 
-```text
+``` text
 GET /bills/{bill_id}
 ```
 
@@ -1780,13 +1610,13 @@ Retrieves a specific bill using its bill ID.
 
 ### Example
 
-```text
+``` text
 GET /bills/BILL001
 ```
 
 ### Success Response (200)
 
-```json
+``` json
 {
     "success": true,
     "bill": {
@@ -1804,20 +1634,20 @@ GET /bills/BILL001
 
 ### Error Response (404)
 
-```json
+``` json
 {
     "success": false,
     "message": "Bill not found."
 }
 ```
 
----
+------------------------------------------------------------------------
 
 ## 4. Update Bill
 
 **Endpoint**
 
-```text
+``` text
 PUT /bills/{bill_id}
 ```
 
@@ -1827,13 +1657,13 @@ Updates an existing bill using its bill ID.
 
 ### Example
 
-```text
+``` text
 PUT /bills/BILL001
 ```
 
 ### Request Body
 
-```json
+``` json
 {
     "customer_id": "CUS001",
     "employee_id": "EMP001",
@@ -1847,7 +1677,7 @@ PUT /bills/BILL001
 
 ### Success Response (200)
 
-```json
+``` json
 {
     "success": true,
     "message": "Bill updated successfully."
@@ -1856,7 +1686,7 @@ PUT /bills/BILL001
 
 ### Error Response (400)
 
-```json
+``` json
 {
     "success": false,
     "message": "Request body must be valid JSON."
@@ -1865,7 +1695,7 @@ PUT /bills/BILL001
 
 ### Validation Error (400)
 
-```json
+``` json
 {
     "success": false,
     "message": "All fields (customer_id, employee_id, table_id, invoice_number, bill_date, total_amount, status) are required."
@@ -1874,20 +1704,20 @@ PUT /bills/BILL001
 
 ### Error Response (404)
 
-```json
+``` json
 {
     "success": false,
     "message": "Bill not found."
 }
 ```
 
----
+------------------------------------------------------------------------
 
 ## 5. Delete Bill
 
 **Endpoint**
 
-```text
+``` text
 DELETE /bills/{bill_id}
 ```
 
@@ -1897,13 +1727,13 @@ Deletes an existing bill using its bill ID.
 
 ### Example
 
-```text
+``` text
 DELETE /bills/BILL001
 ```
 
 ### Success Response (200)
 
-```json
+``` json
 {
     "success": true,
     "message": "Bill deleted successfully."
@@ -1912,7 +1742,7 @@ DELETE /bills/BILL001
 
 ### Error Response (404)
 
-```json
+``` json
 {
     "success": false,
     "message": "Bill not found."
@@ -1921,45 +1751,43 @@ DELETE /bills/BILL001
 
 ### Referenced Bill Error (404)
 
-```json
+``` json
 {
     "success": false,
     "message": "Bill cannot be deleted because it is referenced by existing records."
 }
 ```
 
----
+------------------------------------------------------------------------
 
 ## Bill Fields
 
-| Field | Type | Description |
-|------|------|-------------|
-| bill_id | String | Unique bill ID |
-| customer_id | String | ID of the associated customer |
-| employee_id | String | ID of the employee who created the bill |
-| table_id | String | ID of the associated restaurant table |
-| invoice_number | String | Unique invoice number |
-| bill_date | String | Date the bill was created |
-| total_amount | Float | Total amount for the bill |
-| status | String | Current bill status |
+\| Field \| Type \| Description \| \|------\|------\|-------------\| \|
+bill_id \| String \| Unique bill ID \| \| customer_id \| String \| ID of
+the associated customer \| \| employee_id \| String \| ID of the
+employee who created the bill \| \| table_id \| String \| ID of the
+associated restaurant table \| \| invoice_number \| String \| Unique
+invoice number \| \| bill_date \| String \| Date the bill was created \|
+\| total_amount \| Float \| Total amount for the bill \| \| status \|
+String \| Current bill status \|
 
----
+------------------------------------------------------------------------
 
 # Bill Item Module
 
 Base URL:
 
-```text
-http://127.0.0.1:5000
+``` text
+http\://127.0.0.1:5000
 ```
 
----
+------------------------------------------------------------------------
 
 ## 1. Create Bill Item
 
 **Endpoint**
 
-```text
+``` text
 POST /bill-items
 ```
 
@@ -1969,7 +1797,7 @@ Creates a new line item for an existing bill.
 
 ### Request Body
 
-```json
+``` json
 {
     "bill_item_id": "BITEM001",
     "bill_id": "BILL002",
@@ -1982,7 +1810,7 @@ Creates a new line item for an existing bill.
 
 ### Success Response (201)
 
-```json
+``` json
 {
     "success": true,
     "message": "Bill item added successfully."
@@ -1991,7 +1819,7 @@ Creates a new line item for an existing bill.
 
 ### Error Response (400)
 
-```json
+``` json
 {
     "success": false,
     "message": "Request body must be valid JSON."
@@ -2000,7 +1828,7 @@ Creates a new line item for an existing bill.
 
 ### Validation Error (400)
 
-```json
+``` json
 {
     "success": false,
     "message": "All fields (bill_item_id, bill_id, menu_item_id, quantity, unit_price, subtotal) are required."
@@ -2009,20 +1837,20 @@ Creates a new line item for an existing bill.
 
 ### Service Error (400)
 
-```json
+``` json
 {
     "success": false,
     "message": "Bill item with this ID already exists, or a referenced bill or menu item does not exist."
 }
 ```
 
----
+------------------------------------------------------------------------
 
 ## 2. Get All Bill Items
 
 **Endpoint**
 
-```text
+``` text
 GET /bill-items
 ```
 
@@ -2032,7 +1860,7 @@ Retrieves all bill items ordered by bill item ID.
 
 ### Success Response (200)
 
-```json
+``` json
 {
     "success": true,
     "bill_items": [
@@ -2050,20 +1878,20 @@ Retrieves all bill items ordered by bill item ID.
 
 ### Error Response (404)
 
-```json
+``` json
 {
     "success": false,
     "message": "No bill items found."
 }
 ```
 
----
+------------------------------------------------------------------------
 
 ## 3. Get Bill Item By ID
 
 **Endpoint**
 
-```text
+``` text
 GET /bill-items/{bill_item_id}
 ```
 
@@ -2073,13 +1901,13 @@ Retrieves a specific bill item using its bill item ID.
 
 ### Example
 
-```text
+``` text
 GET /bill-items/BITEM001
 ```
 
 ### Success Response (200)
 
-```json
+``` json
 {
     "success": true,
     "bill_item": {
@@ -2095,20 +1923,20 @@ GET /bill-items/BITEM001
 
 ### Error Response (404)
 
-```json
+``` json
 {
     "success": false,
     "message": "Bill item not found."
 }
 ```
 
----
+------------------------------------------------------------------------
 
 ## 4. Update Bill Item
 
 **Endpoint**
 
-```text
+``` text
 PUT /bill-items/{bill_item_id}
 ```
 
@@ -2118,13 +1946,13 @@ Updates an existing bill item using its bill item ID.
 
 ### Example
 
-```text
+``` text
 PUT /bill-items/BITEM001
 ```
 
 ### Request Body
 
-```json
+``` json
 {
     "bill_id": "BILL002",
     "menu_item_id": "ITEM001",
@@ -2136,7 +1964,7 @@ PUT /bill-items/BITEM001
 
 ### Success Response (200)
 
-```json
+``` json
 {
     "success": true,
     "message": "Bill item updated successfully."
@@ -2145,7 +1973,7 @@ PUT /bill-items/BITEM001
 
 ### Error Response (400)
 
-```json
+``` json
 {
     "success": false,
     "message": "Request body must be valid JSON."
@@ -2154,7 +1982,7 @@ PUT /bill-items/BITEM001
 
 ### Validation Error (400)
 
-```json
+``` json
 {
     "success": false,
     "message": "All fields (bill_id, menu_item_id, quantity, unit_price, subtotal) are required."
@@ -2163,7 +1991,7 @@ PUT /bill-items/BITEM001
 
 ### Error Response (404)
 
-```json
+``` json
 {
     "success": false,
     "message": "Bill item not found."
@@ -2172,20 +2000,20 @@ PUT /bill-items/BITEM001
 
 ### Service Error (404)
 
-```json
+``` json
 {
     "success": false,
     "message": "Referenced bill or menu item does not exist."
 }
 ```
 
----
+------------------------------------------------------------------------
 
 ## 5. Delete Bill Item
 
 **Endpoint**
 
-```text
+``` text
 DELETE /bill-items/{bill_item_id}
 ```
 
@@ -2195,13 +2023,13 @@ Deletes an existing bill item using its bill item ID.
 
 ### Example
 
-```text
+``` text
 DELETE /bill-items/BITEM001
 ```
 
 ### Success Response (200)
 
-```json
+``` json
 {
     "success": true,
     "message": "Bill item deleted successfully."
@@ -2210,7 +2038,7 @@ DELETE /bill-items/BITEM001
 
 ### Error Response (404)
 
-```json
+``` json
 {
     "success": false,
     "message": "Bill item not found."
@@ -2219,36 +2047,33 @@ DELETE /bill-items/BITEM001
 
 ### Referenced Bill Item Error (404)
 
-```json
+``` json
 {
     "success": false,
     "message": "Bill item cannot be deleted because it is referenced by existing records."
 }
 ```
 
----
+------------------------------------------------------------------------
 
 ## Bill Item Fields
 
-| Field | Type | Description |
-|------|------|-------------|
-| bill_item_id | String | Unique bill item ID |
-| bill_id | String | ID of the associated bill |
-| menu_item_id | String | ID of the associated menu item |
-| quantity | Integer | Quantity of the menu item |
-| unit_price | Float | Price per menu item unit |
-| subtotal | Float | Total amount for the bill item |
+\| Field \| Type \| Description \| \|------\|------\|-------------\| \|
+bill_item_id \| String \| Unique bill item ID \| \| bill_id \| String \|
+ID of the associated bill \| \| menu_item_id \| String \| ID of the
+associated menu item \| \| quantity \| Integer \| Quantity of the menu
+item \| \| unit_price \| Float \| Price per menu item unit \| \|
+subtotal \| Float \| Total amount for the bill item \|
 
----
+------------------------------------------------------------------------
 
 # Payment Module
 
 Base URL:
 
-```text
-http://127.0.0.1:5000
+\`\`\`text http://127.0.0.1:5000
 
-1. Create Payment
+1.  Create Payment
 
 Endpoint
 
@@ -2256,26 +2081,13 @@ POST /payments
 
 Creates a new payment record linked to an existing bill.
 
-Request Body
-{
-    "payment_id": "PAY001",
-    "bill_id": "BILL003",
-    "payment_method": "Cash",
-    "payment_status": "Paid",
-    "payment_date": "2026-08-09",
-    "paid_amount": 500.00
-}
-Success Response (201)
-{
-    "success": true,
-    "message": "Payment added successfully."
-}
-Error Response (400)
-{
-    "success": false,
-    "message": "Payment with this ID already exists, the bill already has a payment, or the referenced bill does not exist."
-}
-2. Get All Payments
+Request Body { "payment_id": "PAY001", "bill_id": "BILL003",
+"payment_method": "Cash", "payment_status": "Paid", "payment_date":
+"2026-08-09", "paid_amount": 500.00 } Success Response (201) {
+"success": true, "message": "Payment added successfully." } Error
+Response (400) { "success": false, "message": "Payment with this ID
+already exists, the bill already has a payment, or the referenced bill
+does not exist." } 2. Get All Payments
 
 Endpoint
 
@@ -2283,120 +2095,60 @@ GET /payments
 
 Retrieves all payment records.
 
-Success Response (200)
-{
-    "success": true,
-    "payments": [
-        {
-            "payment_id": "PAY001",
-            "bill_id": "BILL003",
-            "payment_method": "UPI",
-            "payment_status": "Paid",
-            "payment_date": "2026-08-09",
-            "paid_amount": 500.0
-        }
-    ]
-}
-Error Response (404)
-{
-    "success": false,
-    "message": "No payments found."
-}
-3. Get Payment By ID
+Success Response (200) { "success": true, "payments": \[ { "payment_id":
+"PAY001", "bill_id": "BILL003", "payment_method": "UPI",
+"payment_status": "Paid", "payment_date": "2026-08-09", "paid_amount":
+500.0 } \] } Error Response (404) { "success": false, "message": "No
+payments found." } 3. Get Payment By ID
 
 Endpoint
 
-GET /payments/<payment_id>
+GET /payments/{payment_id}
 
 Retrieves a specific payment using its payment ID.
 
-Success Response (200)
-{
-    "success": true,
-    "payment": {
-        "payment_id": "PAY001",
-        "bill_id": "BILL003",
-        "payment_method": "UPI",
-        "payment_status": "Paid",
-        "payment_date": "2026-08-09",
-        "paid_amount": 500.0
-    }
-}
-Error Response (404)
-{
-    "success": false,
-    "message": "Payment not found."
-}
-4. Update Payment
+Success Response (200) { "success": true, "payment": { "payment_id":
+"PAY001", "bill_id": "BILL003", "payment_method": "UPI",
+"payment_status": "Paid", "payment_date": "2026-08-09", "paid_amount":
+500.0 } } Error Response (404) { "success": false, "message": "Payment
+not found." } 4. Update Payment
 
 Endpoint
 
-PUT /payments/<payment_id>
+PUT /payments/{payment_id}
 
 Updates an existing payment record.
 
-Request Body
-{
-    "bill_id": "BILL003",
-    "payment_method": "UPI",
-    "payment_status": "Paid",
-    "payment_date": "2026-08-09",
-    "paid_amount": 500.00
-}
-Success Response (200)
-{
-    "success": true,
-    "message": "Payment updated successfully."
-}
-Error Response (400)
-{
-    "success": false,
-    "message": "The bill already has a payment, or the referenced bill does not exist."
-}
-Error Response (404)
-{
-    "success": false,
-    "message": "Payment not found."
-}
-5. Delete Payment
+Request Body { "bill_id": "BILL003", "payment_method": "UPI",
+"payment_status": "Paid", "payment_date": "2026-08-09", "paid_amount":
+500.00 } Success Response (200) { "success": true, "message": "Payment
+updated successfully." } Error Response (400) { "success": false,
+"message": "The bill already has a payment, or the referenced bill does
+not exist." } Error Response (404) { "success": false, "message":
+"Payment not found." } 5. Delete Payment
 
 Endpoint
 
-DELETE /payments/<payment_id>
+DELETE /payments/{payment_id}
 
 Deletes a payment using its payment ID.
 
-Success Response (200)
-{
-    "success": true,
-    "message": "Payment deleted successfully."
-}
-Error Response (404)
-{
-    "success": false,
-    "message": "Payment not found."
-}
-Payment Fields
-Field	Type	Description
-payment_id	TEXT	Unique payment identifier
-bill_id	TEXT	Identifier of the associated bill
-payment_method	TEXT	Method used for payment
-payment_status	TEXT	Current payment status
-payment_date	TEXT	Date of payment
-paid_amount	REAL	Amount paid
-Relationship
-Bills → Payments (1:1)
-payments.bill_id references bills.bill_id
-bill_id is UNIQUE in the payments table
+Success Response (200) { "success": true, "message": "Payment deleted
+successfully." } Error Response (404) { "success": false, "message":
+"Payment not found." } Payment Fields Field Type Description payment_id
+TEXT Unique payment identifier bill_id TEXT Identifier of the associated
+bill payment_method TEXT Method used for payment payment_status TEXT
+Current payment status payment_date TEXT Date of payment paid_amount
+REAL Amount paid Relationship Bills → Payments (1:1) payments.bill_id
+references bills.bill_id bill_id is UNIQUE in the payments table
 
 # Employee Module
 
 Base URL:
 
-```text
-http://127.0.0.1:5000
+\`\`\`text http://127.0.0.1:5000
 
-1. Create Employee
+1.  Create Employee
 
 Endpoint
 
@@ -2404,30 +2156,13 @@ POST /employees
 
 Creates a new employee record.
 
-Request Body
-{
-    "employee_id": "EMP002",
-    "full_name": "Arun Kumar",
-    "phone": "9876543210",
-    "email": "arun@sarupos.com",
-    "designation": "Manager",
-    "address": "Coimbatore",
-    "role": "Manager",
-    "hire_date": "2026-08-09",
-    "salary": 35000.00,
-    "status": "Active"
-}
-Success Response (201)
-{
-    "success": true,
-    "message": "Employee added successfully."
-}
-Error Response (400)
-{
-    "success": false,
-    "message": "Employee with this ID, phone, or email already exists."
-}
-2. Get All Employees
+Request Body { "employee_id": "EMP002", "full_name": "Arun Kumar",
+"phone": "9876543210", "email": "arun@sarupos.com", "designation":
+"Manager", "address": "Coimbatore", "role": "Manager", "hire_date":
+"2026-08-09", "salary": 35000.00, "status": "Active" } Success Response
+(201) { "success": true, "message": "Employee added successfully." }
+Error Response (400) { "success": false, "message": "Employee with this
+ID, phone, or email already exists." } 2. Get All Employees
 
 Endpoint
 
@@ -2435,144 +2170,69 @@ GET /employees
 
 Retrieves all employee records.
 
-Success Response (200)
-{
-    "success": true,
-    "employees": [
-        {
-            "employee_id": "EMP001",
-            "full_name": "Administrator",
-            "phone": "9999999999",
-            "email": "admin@sarupos.com",
-            "designation": null,
-            "address": null,
-            "role": "Admin",
-            "hire_date": "2026-01-01",
-            "salary": 50000.0,
-            "status": "Active"
-        }
-    ]
-}
-Error Response (404)
-{
-    "success": false,
-    "message": "No employees found."
-}
-3. Get Employee By ID
+Success Response (200) { "success": true, "employees": \[ {
+"employee_id": "EMP001", "full_name": "Administrator", "phone":
+"9999999999", "email": "admin@sarupos.com", "designation": null,
+"address": null, "role": "Admin", "hire_date": "2026-01-01", "salary":
+50000.0, "status": "Active" } \] } Error Response (404) { "success":
+false, "message": "No employees found." } 3. Get Employee By ID
 
 Endpoint
 
-GET /employees/<employee_id>
+GET /employees/{employee_id}
 
 Retrieves a specific employee using the employee ID.
 
-Success Response (200)
-{
-    "success": true,
-    "employee": {
-        "employee_id": "EMP001",
-        "full_name": "Administrator",
-        "phone": "9999999999",
-        "email": "admin@sarupos.com",
-        "designation": null,
-        "address": null,
-        "role": "Admin",
-        "hire_date": "2026-01-01",
-        "salary": 50000.0,
-        "status": "Active"
-    }
-}
-Error Response (404)
-{
-    "success": false,
-    "message": "Employee not found."
-}
-4. Update Employee
+Success Response (200) { "success": true, "employee": { "employee_id":
+"EMP001", "full_name": "Administrator", "phone": "9999999999", "email":
+"admin@sarupos.com", "designation": null, "address": null, "role":
+"Admin", "hire_date": "2026-01-01", "salary": 50000.0, "status":
+"Active" } } Error Response (404) { "success": false, "message":
+"Employee not found." } 4. Update Employee
 
 Endpoint
 
-PUT /employees/<employee_id>
+PUT /employees/{employee_id}
 
 Updates an existing employee record.
 
-Request Body
-{
-    "full_name": "Arun Kumar",
-    "phone": "9876543210",
-    "email": "arun@sarupos.com",
-    "designation": "Senior Manager",
-    "address": "Coimbatore",
-    "role": "Manager",
-    "hire_date": "2026-08-09",
-    "salary": 40000.00,
-    "status": "Active"
-}
-Success Response (200)
-{
-    "success": true,
-    "message": "Employee updated successfully."
-}
-Error Response (400)
-{
-    "success": false,
-    "message": "Employee with this phone or email already exists."
-}
-Error Response (404)
-{
-    "success": false,
-    "message": "Employee not found."
-}
-5. Delete Employee
+Request Body { "full_name": "Arun Kumar", "phone": "9876543210",
+"email": "arun@sarupos.com", "designation": "Senior Manager", "address":
+"Coimbatore", "role": "Manager", "hire_date": "2026-08-09", "salary":
+40000.00, "status": "Active" } Success Response (200) { "success": true,
+"message": "Employee updated successfully." } Error Response (400) {
+"success": false, "message": "Employee with this phone or email already
+exists." } Error Response (404) { "success": false, "message": "Employee
+not found." } 5. Delete Employee
 
 Endpoint
 
-DELETE /employees/<employee_id>
+DELETE /employees/{employee_id}
 
 Deletes an employee using the employee ID.
 
-Success Response (200)
-{
-    "success": true,
-    "message": "Employee deleted successfully."
-}
-Error Response (404)
-{
-    "success": false,
-    "message": "Employee not found."
-}
-Employee Fields
-Field	Type	Description
-employee_id	TEXT	Unique employee identifier
-full_name	TEXT	Full name of the employee
-phone	TEXT	Employee phone number
-email	TEXT	Employee email address
-designation	TEXT	Employee designation
-address	TEXT	Employee address
-role	TEXT	Employee role
-hire_date	TEXT	Employee hire date
-salary	REAL	Employee salary
-status	TEXT	Current employee status
-Constraints
-employee_id is the primary key.
-phone must be unique when provided.
-email must be unique when provided.
-full_name is required.
-role is required.
-status is required.
-designation, address, hire_date, and salary are optional.
-Relationships
-employees has no declared foreign keys.
-Employee records are referenced logically by other modules such as Billing and User Management.
-
+Success Response (200) { "success": true, "message": "Employee deleted
+successfully." } Error Response (404) { "success": false, "message":
+"Employee not found." } Employee Fields Field Type Description
+employee_id TEXT Unique employee identifier full_name TEXT Full name of
+the employee phone TEXT Employee phone number email TEXT Employee email
+address designation TEXT Employee designation address TEXT Employee
+address role TEXT Employee role hire_date TEXT Employee hire date salary
+REAL Employee salary status TEXT Current employee status Constraints
+employee_id is the primary key. phone must be unique when provided.
+email must be unique when provided. full_name is required. role is
+required. status is required. designation, address, hire_date, and
+salary are optional. Relationships employees has no declared foreign
+keys. Employee records are referenced logically by other modules such as
+Billing and User Management.
 
 # Settings Module
 
 Base URL:
 
-```text
-http://127.0.0.1:5000
+\`\`\`text http://127.0.0.1:5000
 
-1. Create Settings
+1.  Create Settings
 
 Endpoint
 
@@ -2580,27 +2240,12 @@ POST /settings
 
 Creates a new restaurant settings record.
 
-Request Body
-{
-    "setting_id": "SET002",
-    "restaurant_name": "Saru POS Test Restaurant",
-    "gst_number": "GST987654321",
-    "address": "Coimbatore",
-    "phone": "9123456780",
-    "email": "test@sarupos.com",
-    "currency": "INR",
-    "tax_percentage": 8.0
-}
-Success Response (201)
-{
-    "success": true,
-    "message": "Settings added successfully."
-}
-Error Response (400)
-{
-    "success": false,
-    "message": "Settings with this ID already exists."
-}
+Request Body { "setting_id": "SET002", "restaurant_name": "Saru POS Test
+Restaurant", "gst_number": "GST987654321", "address": "Coimbatore",
+"phone": "9123456780", "email": "test@sarupos.com", "currency": "INR",
+"tax_percentage": 8.0 } Success Response (201) { "success": true,
+"message": "Settings added successfully." } Error Response (400) {
+"success": false, "message": "Settings with this ID already exists." }
 2. Get All Settings
 
 Endpoint
@@ -2609,127 +2254,71 @@ GET /settings
 
 Retrieves all restaurant settings records.
 
-Success Response (200)
-{
-    "success": true,
-    "settings": [
-        {
-            "setting_id": "SET001",
-            "restaurant_name": "Saru POS Restaurant",
-            "gst_number": "GST123456789",
-            "address": "Coimbatore",
-            "phone": "9876543210",
-            "email": "admin@sarupos.com",
-            "currency": "INR",
-            "tax_percentage": 5.0
-        }
-    ]
-}
-Error Response (404)
-{
-    "success": false,
-    "message": "No settings found."
-}
-3. Get Settings By ID
+Success Response (200) { "success": true, "settings": \[ { "setting_id":
+"SET001", "restaurant_name": "Saru POS Restaurant", "gst_number":
+"GST123456789", "address": "Coimbatore", "phone": "9876543210", "email":
+"admin@sarupos.com", "currency": "INR", "tax_percentage": 5.0 } \] }
+Error Response (404) { "success": false, "message": "No settings found."
+} 3. Get Settings By ID
 
 Endpoint
 
-GET /settings/<setting_id>
+GET /settings/{setting_id}
 
 Retrieves a specific settings record using the setting ID.
 
-Success Response (200)
-{
-    "success": true,
-    "setting": {
-        "setting_id": "SET001",
-        "restaurant_name": "Saru POS Restaurant",
-        "gst_number": "GST123456789",
-        "address": "Coimbatore",
-        "phone": "9876543210",
-        "email": "admin@sarupos.com",
-        "currency": "INR",
-        "tax_percentage": 5.0
-    }
-}
-Error Response (404)
-{
-    "success": false,
-    "message": "Settings not found."
-}
-4. Update Settings
+Success Response (200) { "success": true, "setting": { "setting_id":
+"SET001", "restaurant_name": "Saru POS Restaurant", "gst_number":
+"GST123456789", "address": "Coimbatore", "phone": "9876543210", "email":
+"admin@sarupos.com", "currency": "INR", "tax_percentage": 5.0 } } Error
+Response (404) { "success": false, "message": "Settings not found." } 4.
+Update Settings
 
 Endpoint
 
-PUT /settings/<setting_id>
+PUT /settings/{setting_id}
 
 Updates an existing restaurant settings record.
 
-Request Body
-{
-    "restaurant_name": "Saru POS Updated Restaurant",
-    "gst_number": "GST987654321",
-    "address": "Coimbatore",
-    "phone": "9123456780",
-    "email": "test@sarupos.com",
-    "currency": "INR",
-    "tax_percentage": 10.0
-}
-Success Response (200)
-{
-    "success": true,
-    "message": "Settings updated successfully."
-}
-Error Response (404)
-{
-    "success": false,
-    "message": "Settings not found."
-}
-5. Delete Settings
+Request Body { "restaurant_name": "Saru POS Updated Restaurant",
+"gst_number": "GST987654321", "address": "Coimbatore", "phone":
+"9123456780", "email": "test@sarupos.com", "currency": "INR",
+"tax_percentage": 10.0 } Success Response (200) { "success": true,
+"message": "Settings updated successfully." } Error Response (404) {
+"success": false, "message": "Settings not found." } 5. Delete Settings
 
 Endpoint
 
-DELETE /settings/<setting_id>
+DELETE /settings/{setting_id}
 
 Deletes a settings record using the setting ID.
 
-Success Response (200)
-{
-    "success": true,
-    "message": "Settings deleted successfully."
-}
-Error Response (404)
-{
-    "success": false,
-    "message": "Settings not found."
-}
-Settings Fields
-Field	Type	Description
-setting_id	TEXT	Unique settings identifier
-restaurant_name	TEXT	Restaurant name
-gst_number	TEXT	GST number
-address	TEXT	Restaurant address
-phone	TEXT	Restaurant phone number
-email	TEXT	Restaurant email address
-currency	TEXT	Currency used by the restaurant
-tax_percentage	REAL	Applicable tax percentage
-Constraints
-setting_id is the primary key.
-restaurant_name is required.
-currency is required.
-tax_percentage is required.
-gst_number, address, phone, and email are optional.
-There are no declared foreign keys.
-There are no additional unique constraints.
+Success Response (200) { "success": true, "message": "Settings deleted
+successfully." } Error Response (404) { "success": false, "message":
+"Settings not found." } Settings Fields Field Type Description
+setting_id TEXT Unique settings identifier restaurant_name TEXT
+Restaurant name gst_number TEXT GST number address TEXT Restaurant
+address phone TEXT Restaurant phone number email TEXT Restaurant email
+address currency TEXT Currency used by the restaurant tax_percentage
+REAL Applicable tax percentage Constraints setting_id is the primary
+key. restaurant_name is required. currency is required. tax_percentage
+is required. gst_number, address, phone, and email are optional. There
+are no declared foreign keys. There are no additional unique
+constraints.
 
 # User Management Module
 
+### Password Security
+
+User passwords are stored using **Argon2** hashing. Password
+verification is performed during authentication. Password hashes must
+not be exposed through API responses.
+
 Base URL:
 
-```text
-http://127.0.0.1:5000
+\`\`\`text http://127.0.0.1:5000
 
-1. Create User
+1.  Create User
 
 Endpoint
 
@@ -2737,26 +2326,12 @@ POST /users
 
 Creates a new user account.
 
-Request Body
-{
-    "user_id": "USER002",
-    "employee_id": "EMP002",
-    "username": "testuser",
-    "password": "testpass123",
-    "role": "Staff",
-    "status": "Active"
-}
-Success Response (201)
-{
-    "success": true,
-    "message": "User added successfully."
-}
-Error Response (400)
-{
-    "success": false,
-    "message": "User ID, employee ID, or username already exists."
-}
-2. Get All Users
+Request Body { "user_id": "USER002", "employee_id": "EMP002",
+"username": "testuser", "password": "testpass123", "role": "Staff",
+"status": "Active" } Success Response (201) { "success": true,
+"message": "User added successfully." } Error Response (400) {
+"success": false, "message": "User ID, employee ID, or username already
+exists." } 2. Get All Users
 
 Endpoint
 
@@ -2764,109 +2339,104 @@ GET /users
 
 Retrieves all user records.
 
-Success Response (200)
-{
-    "success": true,
-    "users": [
-        {
-            "user_id": "USER001",
-            "employee_id": "EMP001",
-            "username": "admin",
-            "password": "********",
-            "role": "Admin",
-            "status": "Active"
-        }
-    ]
-}
-Error Response (404)
-{
-    "success": false,
-    "message": "No users found."
-}
-3. Get User By ID
+Success Response (200) { "success": true, "users": \[ { "user_id":
+"USER001", "employee_id": "EMP001", "username": "admin", "password":
+"", "role": "Admin", "status": "Active" } \] } Error
+Response (404) { "success": false, "message": "No users found." } 3. Get
+User By ID
 
 Endpoint
 
-GET /users/<user_id>
+GET /users/{user_id}
 
 Retrieves a specific user using the user ID.
 
-Success Response (200)
-{
-    "success": true,
-    "user": {
-        "user_id": "USER001",
-        "employee_id": "EMP001",
-        "username": "admin",
-        "password": "********",
-        "role": "Admin",
-        "status": "Active"
-    }
-}
-Error Response (404)
-{
-    "success": false,
-    "message": "User not found."
-}
-4. Update User
+Success Response (200) { "success": true, "user": { "user_id":
+"USER001", "employee_id": "EMP001", "username": "admin", "password":
+"", "role": "Admin", "status": "Active" } } Error
+Response (404) { "success": false, "message": "User not found." } 4.
+Update User
 
 Endpoint
 
-PUT /users/<user_id>
+PUT /users/{user_id}
 
 Updates an existing user account.
 
-Request Body
-{
-    "employee_id": "EMP002",
-    "username": "updateduser",
-    "password": "updatedpass123",
-    "role": "Manager",
-    "status": "Active"
-}
-Success Response (200)
-{
-    "success": true,
-    "message": "User updated successfully."
-}
-Error Response (404)
-{
-    "success": false,
-    "message": "User not found."
-}
-5. Delete User
+Request Body { "employee_id": "EMP002", "username": "updateduser",
+"password": "updatedpass123", "role": "Manager", "status": "Active" }
+Success Response (200) { "success": true, "message": "User updated
+successfully." } Error Response (404) { "success": false, "message":
+"User not found." } 5. Delete User
 
 Endpoint
 
-DELETE /users/<user_id>
+DELETE /users/{user_id}
 
 Deletes a user account using the user ID.
 
-Success Response (200)
-{
-    "success": true,
-    "message": "User deleted successfully."
-}
-Error Response (404)
-{
-    "success": false,
-    "message": "User not found."
-}
-User Fields
-Field	Type	Description
-user_id	TEXT	Unique user identifier
-employee_id	TEXT	Employee identifier associated with the user
-username	TEXT	Unique login username
-password	TEXT	User password
-role	TEXT	User role
-status	TEXT	User account status
-Constraints
-user_id is the primary key.
-employee_id is unique.
-username is unique and required.
-password is required.
-role is required.
-status is required.
-No foreign key is declared in the actual database.
+Success Response (200) { "success": true, "message": "User deleted
+successfully." } Error Response (404) { "success": false, "message":
+"User not found." } User Fields Field Type Description user_id TEXT
+Unique user identifier employee_id TEXT Employee identifier associated
+with the user username TEXT Unique login username password TEXT User
+password role TEXT User role status TEXT User account status Constraints
+user_id is the primary key. employee_id is unique. username is unique
+and required. password is required. role is required. status is
+required. No foreign key is declared in the actual database.
 Authentication/login is handled separately by the Authentication module.
 User Management provides CRUD operations for user records.
+
+------------------------------------------------------------------------
+
+# Common HTTP Status Codes
+
+  -----------------------------------------------------------------------
+  Status Code                         Meaning
+  ----------------------------------- -----------------------------------
+  200                                 Request completed successfully
+
+  201                                 Resource created successfully
+
+  400                                 Invalid request, validation
+                                      failure, or service-level conflict
+
+  401                                 Authentication failed or token is
+                                      missing/invalid/expired
+
+  403                                 Authenticated user is not
+                                      authorized for the requested
+                                      operation
+
+  404                                 Requested resource was not found
+
+  500                                 Unexpected internal server error
+  -----------------------------------------------------------------------
+
+------------------------------------------------------------------------
+
+# API Documentation Notes
+
+-   Endpoint placeholders use `{parameter_name}` consistently.
+-   Request and response examples use JSON where applicable.
+-   Authentication is performed through `POST /login`.
+-   Protected requests must send the JWT using the
+    `Authorization: Bearer <access_token>` header.
+-   Role authorization is enforced at route level for the modules listed
+    in the RBAC table.
+-   Database foreign-key integrity is enabled in the audited backend.
+-   The audited database contained no orphan records for the checked
+    relationships.
+-   The backend security audit passed with **24 PASS / 0 FAIL** for the
+    checks that were run.
+-   This document describes the Saru POS v1.0 API surface;
+    implementation behavior remains the source of truth when an example
+    differs from runtime behavior.
+
+------------------------------------------------------------------------
+
+# Version History
+
+  Version   Description
+  --------- ----------------------------------------------------------
+  v1.0      Saru POS API documentation consolidated and standardized
