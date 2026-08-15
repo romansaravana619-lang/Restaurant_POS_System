@@ -6,7 +6,9 @@ in the Saru POS v1.0 application.
 """
 
 from flask import Blueprint, request, jsonify
+
 from utils.auth_middleware import require_auth
+from utils.validation import is_non_empty_string, is_number
 
 from services.payment_service import (
     add_payment,
@@ -23,20 +25,20 @@ payment_bp = Blueprint("payment", __name__)
 @payment_bp.route("/payments", methods=["POST"])
 @require_auth
 def create_payment():
-    """Creates a new payment.
+    """Creates a new payment."""
 
-    Reads payment details from the request body, validates the input,
-    and creates a new payment record through the service layer.
-
-    Returns:
-        tuple: A JSON response and the corresponding HTTP status code.
-    """
     data = request.get_json(silent=True)
+
+    if data is None:
+        return jsonify({
+            "success": False,
+            "message": "Request body must be valid JSON."
+        }), 400
 
     if not data:
         return jsonify({
             "success": False,
-            "message": "Request body must be valid JSON."
+            "message": "Request body cannot be empty."
         }), 400
 
     payment_id = data.get("payment_id")
@@ -46,25 +48,21 @@ def create_payment():
     payment_date = data.get("payment_date")
     paid_amount = data.get("paid_amount")
 
-    string_fields = [
-        payment_id,
-        bill_id,
-        payment_method,
-        payment_status,
-        payment_date,
-    ]
-
-    if (
-        not all(
-            isinstance(field, str) and field.strip()
-            for field in string_fields
-        )
-        or paid_amount is None
-        or paid_amount == ""
-    ):
+    if not all([
+        is_non_empty_string(payment_id),
+        is_non_empty_string(bill_id),
+        is_non_empty_string(payment_method),
+        is_non_empty_string(payment_status),
+        is_non_empty_string(payment_date),
+        is_number(paid_amount),
+    ]):
         return jsonify({
             "success": False,
-            "message": "All fields (payment_id, bill_id, payment_method, payment_status, payment_date, paid_amount) are required."
+            "message": (
+                "All fields (payment_id, bill_id, payment_method, "
+                "payment_status, payment_date, paid_amount) are required "
+                "and must have valid types."
+            )
         }), 400
 
     result = add_payment(
@@ -85,11 +83,8 @@ def create_payment():
 @payment_bp.route("/payments", methods=["GET"])
 @require_auth
 def get_payments():
-    """Retrieves all payments.
+    """Retrieves all payments."""
 
-    Returns:
-        tuple: A JSON response and the corresponding HTTP status code.
-    """
     result = get_all_payments()
 
     if result.get("success"):
@@ -101,14 +96,8 @@ def get_payments():
 @payment_bp.route("/payments/<payment_id>", methods=["GET"])
 @require_auth
 def get_payment(payment_id):
-    """Retrieves a payment by its ID.
+    """Retrieves a payment by its ID."""
 
-    Args:
-        payment_id (str): The unique identifier of the payment.
-
-    Returns:
-        tuple: A JSON response and the corresponding HTTP status code.
-    """
     result = get_payment_by_id(payment_id)
 
     if result.get("success"):
@@ -120,20 +109,20 @@ def get_payment(payment_id):
 @payment_bp.route("/payments/<payment_id>", methods=["PUT"])
 @require_auth
 def update_payment_route(payment_id):
-    """Updates an existing payment.
+    """Updates an existing payment."""
 
-    Args:
-        payment_id (str): The unique identifier of the payment.
-
-    Returns:
-        tuple: A JSON response and the corresponding HTTP status code.
-    """
     data = request.get_json(silent=True)
+
+    if data is None:
+        return jsonify({
+            "success": False,
+            "message": "Request body must be valid JSON."
+        }), 400
 
     if not data:
         return jsonify({
             "success": False,
-            "message": "Request body must be valid JSON."
+            "message": "Request body cannot be empty."
         }), 400
 
     bill_id = data.get("bill_id")
@@ -142,24 +131,20 @@ def update_payment_route(payment_id):
     payment_date = data.get("payment_date")
     paid_amount = data.get("paid_amount")
 
-    string_fields = [
-        bill_id,
-        payment_method,
-        payment_status,
-        payment_date,
-    ]
-
-    if (
-        not all(
-            isinstance(field, str) and field.strip()
-            for field in string_fields
-        )
-        or paid_amount is None
-        or paid_amount == ""
-    ):
+    if not all([
+        is_non_empty_string(bill_id),
+        is_non_empty_string(payment_method),
+        is_non_empty_string(payment_status),
+        is_non_empty_string(payment_date),
+        is_number(paid_amount),
+    ]):
         return jsonify({
             "success": False,
-            "message": "All fields (bill_id, payment_method, payment_status, payment_date, paid_amount) are required."
+            "message": (
+                "All fields (bill_id, payment_method, payment_status, "
+                "payment_date, paid_amount) are required "
+                "and must have valid types."
+            )
         }), 400
 
     result = update_payment(
@@ -180,14 +165,8 @@ def update_payment_route(payment_id):
 @payment_bp.route("/payments/<payment_id>", methods=["DELETE"])
 @require_auth
 def delete_payment_route(payment_id):
-    """Deletes a payment by its ID.
+    """Deletes a payment by its ID."""
 
-    Args:
-        payment_id (str): The unique identifier of the payment.
-
-    Returns:
-        tuple: A JSON response and the corresponding HTTP status code.
-    """
     result = delete_payment(payment_id)
 
     if result.get("success"):

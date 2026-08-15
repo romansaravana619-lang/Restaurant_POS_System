@@ -8,6 +8,7 @@ in the Saru POS v1.0 application.
 from flask import Blueprint, request, jsonify
 
 from utils.auth_middleware import require_auth, require_role
+from utils.validation import is_non_empty_string, is_number
 
 from services.settings_service import (
     add_setting,
@@ -29,10 +30,16 @@ def create_setting():
 
     data = request.get_json(silent=True)
 
-    if not data:
+    if data is None:
         return jsonify({
             "success": False,
             "message": "Request body must be valid JSON."
+        }), 400
+
+    if not data:
+        return jsonify({
+            "success": False,
+            "message": "Request body cannot be empty."
         }), 400
 
     setting_id = data.get("setting_id")
@@ -44,21 +51,18 @@ def create_setting():
     currency = data.get("currency")
     tax_percentage = data.get("tax_percentage")
 
-    required_string_fields = [
-        setting_id,
-        restaurant_name,
-        currency,
-    ]
-
-    if not all(
-        isinstance(field, str) and field.strip()
-        for field in required_string_fields
-    ):
+    if not all([
+        is_non_empty_string(setting_id),
+        is_non_empty_string(restaurant_name),
+        is_non_empty_string(currency),
+        is_number(tax_percentage),
+    ]):
         return jsonify({
             "success": False,
             "message": (
                 "Required fields (setting_id, restaurant_name, "
-                "currency) are missing."
+                "currency, tax_percentage) are required "
+                "and must have valid types."
             )
         }), 400
 
@@ -69,17 +73,13 @@ def create_setting():
         email,
     ]
 
-    for field in optional_string_fields:
-        if field is not None and not isinstance(field, str):
-            return jsonify({
-                "success": False,
-                "message": "Optional text fields must be strings."
-            }), 400
-
-    if tax_percentage is None or tax_percentage == "":
+    if not all(
+        field is None or is_non_empty_string(field)
+        for field in optional_string_fields
+    ):
         return jsonify({
             "success": False,
-            "message": "Required field tax_percentage is missing."
+            "message": "Optional text fields must be non-empty strings."
         }), 400
 
     result = add_setting(
@@ -135,10 +135,16 @@ def update_setting_route(setting_id):
 
     data = request.get_json(silent=True)
 
-    if not data:
+    if data is None:
         return jsonify({
             "success": False,
             "message": "Request body must be valid JSON."
+        }), 400
+
+    if not data:
+        return jsonify({
+            "success": False,
+            "message": "Request body cannot be empty."
         }), 400
 
     restaurant_name = data.get("restaurant_name")
@@ -149,20 +155,16 @@ def update_setting_route(setting_id):
     currency = data.get("currency")
     tax_percentage = data.get("tax_percentage")
 
-    required_string_fields = [
-        restaurant_name,
-        currency,
-    ]
-
-    if not all(
-        isinstance(field, str) and field.strip()
-        for field in required_string_fields
-    ):
+    if not all([
+        is_non_empty_string(restaurant_name),
+        is_non_empty_string(currency),
+        is_number(tax_percentage),
+    ]):
         return jsonify({
             "success": False,
             "message": (
-                "Required fields (restaurant_name, currency) "
-                "are missing."
+                "Required fields (restaurant_name, currency, "
+                "tax_percentage) are required and must have valid types."
             )
         }), 400
 
@@ -173,17 +175,13 @@ def update_setting_route(setting_id):
         email,
     ]
 
-    for field in optional_string_fields:
-        if field is not None and not isinstance(field, str):
-            return jsonify({
-                "success": False,
-                "message": "Optional text fields must be strings."
-            }), 400
-
-    if tax_percentage is None or tax_percentage == "":
+    if not all(
+        field is None or is_non_empty_string(field)
+        for field in optional_string_fields
+    ):
         return jsonify({
             "success": False,
-            "message": "Required field tax_percentage is missing."
+            "message": "Optional text fields must be non-empty strings."
         }), 400
 
     result = update_setting(

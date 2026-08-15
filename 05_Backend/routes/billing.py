@@ -6,15 +6,18 @@ in the Saru POS v1.0 application.
 """
 
 from flask import Blueprint, request, jsonify
+
 from utils.auth_middleware import require_auth, require_role
+from utils.validation import is_non_empty_string, is_number
 
 from services.billing_service import (
     add_bill,
     get_all_bills,
     get_bill_by_id,
     update_bill,
-    delete_bill
+    delete_bill,
 )
+
 
 billing_bp = Blueprint("billing", __name__)
 
@@ -27,10 +30,16 @@ def create_bill():
 
     data = request.get_json(silent=True)
 
-    if not data:
+    if data is None:
         return jsonify({
             "success": False,
             "message": "Request body must be valid JSON."
+        }), 400
+
+    if not data:
+        return jsonify({
+            "success": False,
+            "message": "Request body cannot be empty."
         }), 400
 
     bill_id = data.get("bill_id")
@@ -42,29 +51,22 @@ def create_bill():
     total_amount = data.get("total_amount")
     status = data.get("status")
 
-    string_fields = [
-        bill_id,
-        customer_id,
-        employee_id,
-        table_id,
-        invoice_number,
-        bill_date,
-        status,
-    ]
-
-    if (
-        not all(
-            isinstance(field, str) and field.strip()
-            for field in string_fields
-        )
-        or total_amount is None
-        or total_amount == ""
-    ):
+    if not all([
+        is_non_empty_string(bill_id),
+        is_non_empty_string(customer_id),
+        is_non_empty_string(employee_id),
+        is_non_empty_string(table_id),
+        is_non_empty_string(invoice_number),
+        is_non_empty_string(bill_date),
+        is_number(total_amount),
+        is_non_empty_string(status),
+    ]):
         return jsonify({
             "success": False,
             "message": (
                 "All fields (bill_id, customer_id, employee_id, table_id, "
-                "invoice_number, bill_date, total_amount, status) are required."
+                "invoice_number, bill_date, total_amount, status) "
+                "are required and must have valid types."
             )
         }), 400
 
@@ -112,6 +114,7 @@ def get_bill(bill_id):
 
     return jsonify(result), 404
 
+
 @billing_bp.route("/bills/<bill_id>", methods=["PUT"])
 @require_auth
 @require_role("Admin", "Manager")
@@ -120,10 +123,16 @@ def update_bill_route(bill_id):
 
     data = request.get_json(silent=True)
 
-    if not data:
+    if data is None:
         return jsonify({
             "success": False,
             "message": "Request body must be valid JSON."
+        }), 400
+
+    if not data:
+        return jsonify({
+            "success": False,
+            "message": "Request body cannot be empty."
         }), 400
 
     customer_id = data.get("customer_id")
@@ -134,29 +143,21 @@ def update_bill_route(bill_id):
     total_amount = data.get("total_amount")
     status = data.get("status")
 
-    string_fields = [
-        customer_id,
-        employee_id,
-        table_id,
-        invoice_number,
-        bill_date,
-        status,
-    ]
-
-    if (
-        not all(
-            isinstance(field, str) and field.strip()
-            for field in string_fields
-        )
-        or total_amount is None
-        or total_amount == ""
-    ):
+    if not all([
+        is_non_empty_string(customer_id),
+        is_non_empty_string(employee_id),
+        is_non_empty_string(table_id),
+        is_non_empty_string(invoice_number),
+        is_non_empty_string(bill_date),
+        is_number(total_amount),
+        is_non_empty_string(status),
+    ]):
         return jsonify({
             "success": False,
             "message": (
                 "All fields (customer_id, employee_id, table_id, "
                 "invoice_number, bill_date, total_amount, status) "
-                "are required."
+                "are required and must have valid types."
             )
         }), 400
 
@@ -175,6 +176,7 @@ def update_bill_route(bill_id):
         return jsonify(result), 200
 
     return jsonify(result), 404
+
 
 @billing_bp.route("/bills/<bill_id>", methods=["DELETE"])
 @require_auth

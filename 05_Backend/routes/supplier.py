@@ -9,6 +9,7 @@ handling routing for supplier-related operations.
 from flask import Blueprint, request, jsonify
 
 from utils.auth_middleware import require_auth, require_role
+from utils.validation import is_non_empty_string
 
 from services.supplier_service import (
     add_supplier,
@@ -28,12 +29,18 @@ supplier_bp = Blueprint("supplier", __name__)
 def create_supplier():
     """Create a new supplier."""
 
-    data = request.get_json(silent=True) or {}
+    data = request.get_json(silent=True)
+
+    if data is None:
+        return jsonify({
+            "success": False,
+            "message": "Request body must be valid JSON."
+        }), 400
 
     if not data:
         return jsonify({
             "success": False,
-            "message": "Request body must be valid JSON."
+            "message": "Request body cannot be empty."
         }), 400
 
     supplier_id = data.get("supplier_id")
@@ -45,19 +52,20 @@ def create_supplier():
     status = data.get("status")
 
     if not all([
-        supplier_id,
-        supplier_name,
-        contact_person,
-        phone,
-        email,
-        address,
-        status
+        is_non_empty_string(supplier_id),
+        is_non_empty_string(supplier_name),
+        is_non_empty_string(contact_person),
+        is_non_empty_string(phone),
+        is_non_empty_string(email),
+        is_non_empty_string(address),
+        is_non_empty_string(status)
     ]):
         return jsonify({
             "success": False,
             "message": (
                 "All fields (supplier_id, supplier_name, contact_person, "
-                "phone, email, address, status) are required."
+                "phone, email, address, status) are required and must "
+                "be valid strings."
             )
         }), 400
 
@@ -111,12 +119,18 @@ def get_supplier(supplier_id):
 def update_supplier_route(supplier_id):
     """Update an existing supplier."""
 
-    data = request.get_json(silent=True) or {}
+    data = request.get_json(silent=True)
+
+    if data is None:
+        return jsonify({
+            "success": False,
+            "message": "Request body must be valid JSON."
+        }), 400
 
     if not data:
         return jsonify({
             "success": False,
-            "message": "Request body must be valid JSON."
+            "message": "Request body cannot be empty."
         }), 400
 
     supplier_name = data.get("supplier_name")
@@ -127,18 +141,19 @@ def update_supplier_route(supplier_id):
     status = data.get("status")
 
     if not all([
-        supplier_name,
-        contact_person,
-        phone,
-        email,
-        address,
-        status
+        is_non_empty_string(supplier_name),
+        is_non_empty_string(contact_person),
+        is_non_empty_string(phone),
+        is_non_empty_string(email),
+        is_non_empty_string(address),
+        is_non_empty_string(status)
     ]):
         return jsonify({
             "success": False,
             "message": (
                 "All fields (supplier_name, contact_person, phone, "
-                "email, address, status) are required."
+                "email, address, status) are required and must "
+                "be valid strings."
             )
         }), 400
 
@@ -155,7 +170,8 @@ def update_supplier_route(supplier_id):
     if result.get("success"):
         return jsonify(result), 200
 
-    return jsonify(result), 400
+    return jsonify(result), 404
+
 
 @supplier_bp.route("/suppliers/<supplier_id>", methods=["DELETE"])
 @require_auth

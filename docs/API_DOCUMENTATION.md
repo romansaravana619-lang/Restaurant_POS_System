@@ -30,6 +30,25 @@
   User Management           5
   **Total**            **61**
 
+# Root Endpoint
+
+------------------------------------------------------------------------
+
+## GET /
+
+### Description
+
+Returns the basic status information of the Saru POS API.
+
+### Success Response
+
+``` json
+{
+    "application": "Saru POS",
+    "status": "Running",
+    "version": "1.0"
+}
+
 ------------------------------------------------------------------------
 
 # Authentication Module
@@ -57,6 +76,26 @@ Authorization: Bearer <access_token>
   Algorithm         HS256
   Expiration        60 minutes
   Required header   `Authorization: Bearer <access_token>`
+
+------------------------------------------------------------------------
+
+# Root / Health Endpoint
+
+------------------------------------------------------------------------
+
+## GET /
+
+### Description
+
+Returns the basic Saru POS API status.
+
+### Success Response
+
+``` json
+{
+    "success": true,
+    "message": "Saru POS API is running."
+}
 
 ### Authentication Errors
 

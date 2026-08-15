@@ -8,6 +8,7 @@ in the Saru POS v1.0 application.
 from flask import Blueprint, request, jsonify
 
 from utils.auth_middleware import require_auth, require_role
+from utils.validation import is_non_empty_string, is_number
 
 from services.employee_service import (
     add_employee,
@@ -29,10 +30,16 @@ def create_employee():
 
     data = request.get_json(silent=True)
 
-    if not data:
+    if data is None:
         return jsonify({
             "success": False,
             "message": "Request body must be valid JSON."
+        }), 400
+
+    if not data:
+        return jsonify({
+            "success": False,
+            "message": "Request body cannot be empty."
         }), 400
 
     employee_id = data.get("employee_id")
@@ -53,15 +60,12 @@ def create_employee():
         status,
     ]
 
-    if not all(
-        isinstance(field, str) and field.strip()
-        for field in required_string_fields
-    ):
+    if not all(is_non_empty_string(field) for field in required_string_fields):
         return jsonify({
             "success": False,
             "message": (
                 "Required fields (employee_id, full_name, "
-                "role, status) are missing."
+                "role, status) are missing or invalid."
             )
         }), 400
 
@@ -73,15 +77,20 @@ def create_employee():
         hire_date,
     ]
 
-    for field in optional_string_fields:
-        if field is not None and not isinstance(field, str):
-            return jsonify({
-                "success": False,
-                "message": "Optional text fields must be strings."
-            }), 400
+    if not all(
+        field is None or is_non_empty_string(field)
+        for field in optional_string_fields
+    ):
+        return jsonify({
+            "success": False,
+            "message": "Optional text fields must be non-empty strings."
+        }), 400
 
-    if salary is not None and salary == "":
-        salary = None
+    if salary is not None and not is_number(salary):
+        return jsonify({
+            "success": False,
+            "message": "Salary must be a valid number."
+        }), 400
 
     result = add_employee(
         employee_id=employee_id,
@@ -138,10 +147,16 @@ def update_employee_route(employee_id):
 
     data = request.get_json(silent=True)
 
-    if not data:
+    if data is None:
         return jsonify({
             "success": False,
             "message": "Request body must be valid JSON."
+        }), 400
+
+    if not data:
+        return jsonify({
+            "success": False,
+            "message": "Request body cannot be empty."
         }), 400
 
     full_name = data.get("full_name")
@@ -160,15 +175,12 @@ def update_employee_route(employee_id):
         status,
     ]
 
-    if not all(
-        isinstance(field, str) and field.strip()
-        for field in required_string_fields
-    ):
+    if not all(is_non_empty_string(field) for field in required_string_fields):
         return jsonify({
             "success": False,
             "message": (
                 "Required fields (full_name, role, "
-                "status) are missing."
+                "status) are missing or invalid."
             )
         }), 400
 
@@ -180,15 +192,20 @@ def update_employee_route(employee_id):
         hire_date,
     ]
 
-    for field in optional_string_fields:
-        if field is not None and not isinstance(field, str):
-            return jsonify({
-                "success": False,
-                "message": "Optional text fields must be strings."
-            }), 400
+    if not all(
+        field is None or is_non_empty_string(field)
+        for field in optional_string_fields
+    ):
+        return jsonify({
+            "success": False,
+            "message": "Optional text fields must be non-empty strings."
+        }), 400
 
-    if salary is not None and salary == "":
-        salary = None
+    if salary is not None and not is_number(salary):
+        return jsonify({
+            "success": False,
+            "message": "Salary must be a valid number."
+        }), 400
 
     result = update_employee(
         employee_id=employee_id,

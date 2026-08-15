@@ -8,6 +8,7 @@ in the Saru POS v1.0 application.
 from flask import Blueprint, request, jsonify
 
 from utils.auth_middleware import require_auth, require_role
+from utils.validation import is_non_empty_string
 
 from services.user_service import (
     add_user,
@@ -29,10 +30,16 @@ def create_user():
 
     data = request.get_json(silent=True)
 
-    if not data:
+    if data is None:
         return jsonify({
             "success": False,
             "message": "Request body must be valid JSON."
+        }), 400
+
+    if not data:
+        return jsonify({
+            "success": False,
+            "message": "Request body cannot be empty."
         }), 400
 
     user_id = data.get("user_id")
@@ -42,24 +49,20 @@ def create_user():
     role = data.get("role")
     status = data.get("status")
 
-    required_string_fields = [
-        user_id,
-        employee_id,
-        username,
-        password,
-        role,
-        status,
-    ]
-
-    if not all(
-        isinstance(field, str) and field.strip()
-        for field in required_string_fields
-    ):
+    if not all([
+        is_non_empty_string(user_id),
+        is_non_empty_string(employee_id),
+        is_non_empty_string(username),
+        is_non_empty_string(password),
+        is_non_empty_string(role),
+        is_non_empty_string(status),
+    ]):
         return jsonify({
             "success": False,
             "message": (
                 "All fields (user_id, employee_id, username, "
-                "password, role, status) are required."
+                "password, role, status) are required and must "
+                "be valid strings."
             )
         }), 400
 
@@ -114,10 +117,16 @@ def update_user_route(user_id):
 
     data = request.get_json(silent=True)
 
-    if not data:
+    if data is None:
         return jsonify({
             "success": False,
             "message": "Request body must be valid JSON."
+        }), 400
+
+    if not data:
+        return jsonify({
+            "success": False,
+            "message": "Request body cannot be empty."
         }), 400
 
     employee_id = data.get("employee_id")
@@ -126,23 +135,18 @@ def update_user_route(user_id):
     role = data.get("role")
     status = data.get("status")
 
-    required_string_fields = [
-        employee_id,
-        username,
-        password,
-        role,
-        status,
-    ]
-
-    if not all(
-        isinstance(field, str) and field.strip()
-        for field in required_string_fields
-    ):
+    if not all([
+        is_non_empty_string(employee_id),
+        is_non_empty_string(username),
+        is_non_empty_string(password),
+        is_non_empty_string(role),
+        is_non_empty_string(status),
+    ]):
         return jsonify({
             "success": False,
             "message": (
                 "All fields (employee_id, username, password, "
-                "role, status) are required."
+                "role, status) are required and must be valid strings."
             )
         }), 400
 
