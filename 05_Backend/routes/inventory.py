@@ -8,6 +8,7 @@ inventory items.
 from flask import Blueprint, request, jsonify
 
 from utils.auth_middleware import require_auth, require_role
+from utils.validation import is_non_empty_string, is_number
 
 from services.inventory_service import (
     add_inventory_item,
@@ -45,14 +46,14 @@ def create_inventory_item():
     status = data.get("status")
 
     if not all([
-        inventory_id,
-        supplier_id,
-        item_name,
-        unit,
-        quantity is not None,
-        unit_cost is not None,
-        reorder_level is not None,
-        status
+        is_non_empty_string(inventory_id),
+        is_non_empty_string(supplier_id),
+        is_non_empty_string(item_name),
+        is_non_empty_string(unit),
+        is_number(quantity),
+        is_number(unit_cost),
+        is_number(reorder_level),
+        is_non_empty_string(status)
     ]):
         return jsonify({
             "success": False,
@@ -124,17 +125,15 @@ def update_inventory_item_route(inventory_id):
             400,
         )
 
-    required_fields = [
-        "supplier_id",
-        "item_name",
-        "unit",
-        "quantity",
-        "unit_cost",
-        "reorder_level",
-        "status",
-    ]
-
-    if not all(field in data for field in required_fields):
+    if not all([
+        is_non_empty_string(data.get("supplier_id")),
+        is_non_empty_string(data.get("item_name")),
+        is_non_empty_string(data.get("unit")),
+        is_number(data.get("quantity")),
+        is_number(data.get("unit_cost")),
+        is_number(data.get("reorder_level")),
+        is_non_empty_string(data.get("status"))
+    ]):
         return (
             jsonify({
                 "success": False,
