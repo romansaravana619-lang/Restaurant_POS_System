@@ -1,4 +1,4 @@
-﻿"""
+"""
 Billing Routes Module
 
 This module defines the Flask routes for billing management
@@ -12,6 +12,7 @@ from utils.validation import is_non_empty_string, is_number
 
 from services.billing_service import (
     add_bill,
+    create_checkout,
     get_all_bills,
     get_bill_by_id,
     update_bill,
@@ -21,6 +22,40 @@ from services.billing_service import (
 
 billing_bp = Blueprint("billing", __name__)
 
+
+
+@billing_bp.route("/checkout", methods=["POST"])
+@require_auth
+@require_role("Admin", "Manager", "Staff")
+def checkout():
+    """Create bill, bill items and payment atomically."""
+    data = request.get_json(silent=True)
+    if not isinstance(data, dict) or not data:
+        return jsonify({"success": False, "message": "Request body must be valid JSON."}), 400
+
+    customer_id = data.get("customer_id")
+    table_id = data.get("table_id")
+    invoice_number = data.get("invoice_number")
+    bill_date = data.get("bill_date")
+    payment_method = data.get("payment_method")
+    items = data.get("items")
+    employee_id = getattr(request, "user", {}).get("employee_id")
+
+    if not all(is_non_empty_string(v) for v in [customer_id, table_id, invoice_number, bill_date, payment_method]):
+        return jsonify({"success": False, "message": "customer_id, table_id, invoice_number, bill_date and payment_method are required."}), 400
+    if not isinstance(items, list) or not items:
+        return jsonify({"success": False, "message": "At least one bill item is required."}), 400
+
+    result = create_checkout(
+        customer_id=customer_id,
+        employee_id=employee_id,
+        table_id=table_id,
+        invoice_number=invoice_number,
+        bill_date=bill_date,
+        payment_method=payment_method,
+        items=items,
+    )
+    return jsonify(result), (201 if result.get("success") else 400)
 
 @billing_bp.route("/bills", methods=["POST"])
 @require_auth

@@ -43,33 +43,52 @@ def create_customer():
             "message": "Request body cannot be empty."
         }), 400
 
-    customer_id = data.get("customer_id")
     customer_name = data.get("customer_name")
     phone = data.get("phone")
     email = data.get("email")
-    status = data.get("status")
+    status = data.get("status", "Active")
+    table_id = data.get("table_id")
 
-    if not all([
-        is_non_empty_string(customer_id),
-        is_non_empty_string(customer_name),
-        is_non_empty_string(phone),
-        is_non_empty_string(email),
-        is_non_empty_string(status)
-    ]):
+    # Customer name and phone are mandatory.
+    # Email is optional.
+    if not is_non_empty_string(customer_name):
         return jsonify({
             "success": False,
-            "message": (
-                "All fields (customer_id, customer_name, phone, "
-                "email, status) are required and must be valid strings."
-            )
+            "message": "Customer name is required and must be a valid string."
         }), 400
 
+    if not is_non_empty_string(phone):
+        return jsonify({
+            "success": False,
+            "message": "Customer phone is required and must be a valid string."
+        }), 400
+
+    # Email is optional.
+    # If supplied, it must be a non-empty string.
+    if email is not None and not is_non_empty_string(email):
+        return jsonify({
+            "success": False,
+            "message": "Email must be a valid string when provided."
+        }), 400
+
+    # Status defaults to Active.
+    if not is_non_empty_string(status):
+        status = "Active"
+
+    if table_id is not None and not is_non_empty_string(table_id):
+        return jsonify({
+            "success": False,
+            "message": "Table ID must be a valid string when provided."
+        }), 400
+
+    # Customer ID is intentionally NOT accepted from the frontend.
+    # The service layer will generate the next Customer ID automatically.
     result = add_customer(
-        customer_id,
         customer_name,
         phone,
         email,
-        status
+        status,
+        table_id
     )
 
     if result.get("success"):
@@ -108,7 +127,7 @@ def get_customer(customer_id):
 
 @customer_bp.route("/customers/<customer_id>", methods=["PUT"])
 @require_auth
-@require_role("Admin", "Manager", "Staff")
+@require_role("Admin", "Manager")
 def update_customer_route(customer_id):
     """Updates an existing customer."""
 
@@ -131,19 +150,20 @@ def update_customer_route(customer_id):
     email = data.get("email")
     status = data.get("status")
 
-    if not all([
-        is_non_empty_string(customer_name),
-        is_non_empty_string(phone),
-        is_non_empty_string(email),
-        is_non_empty_string(status)
-    ]):
+    if not is_non_empty_string(customer_name) or not is_non_empty_string(phone):
         return jsonify({
             "success": False,
-            "message": (
-                "All fields (customer_name, phone, email, "
-                "status) are required and must be valid strings."
-            )
+            "message": "Customer name and phone are required and must be valid strings."
         }), 400
+
+    if email is not None and not is_non_empty_string(email):
+        return jsonify({
+            "success": False,
+            "message": "Email must be a valid string when provided."
+        }), 400
+
+    if not is_non_empty_string(status):
+        status = "Active"
 
     result = update_customer(
         customer_id,

@@ -1,4 +1,4 @@
-﻿"""
+"""
 User Management Routes Module
 
 This module defines the Flask routes for user management
@@ -113,20 +113,14 @@ def get_user(user_id):
 @require_auth
 @require_role("Admin")
 def update_user_route(user_id):
-    """Updates an existing user."""
+    """Updates an existing user account."""
 
     data = request.get_json(silent=True)
-
-    if data is None:
-        return jsonify({
-            "success": False,
-            "message": "Request body must be valid JSON."
-        }), 400
 
     if not data:
         return jsonify({
             "success": False,
-            "message": "Request body cannot be empty."
+            "message": "Request body must be valid JSON."
         }), 400
 
     employee_id = data.get("employee_id")
@@ -135,19 +129,26 @@ def update_user_route(user_id):
     role = data.get("role")
     status = data.get("status")
 
-    if not all([
-        is_non_empty_string(employee_id),
-        is_non_empty_string(username),
-        is_non_empty_string(password),
-        is_non_empty_string(role),
-        is_non_empty_string(status),
-    ]):
+    required_string_fields = [
+        employee_id,
+        username,
+        role,
+        status,
+    ]
+
+    if not all(
+        isinstance(field, str) and field.strip()
+        for field in required_string_fields
+    ):
         return jsonify({
             "success": False,
-            "message": (
-                "All fields (employee_id, username, password, "
-                "role, status) are required and must be valid strings."
-            )
+            "message": "Required fields (employee_id, username, role, status) are missing."
+        }), 400
+
+    if password is not None and not isinstance(password, str):
+        return jsonify({
+            "success": False,
+            "message": "Password must be a string when provided."
         }), 400
 
     result = update_user(

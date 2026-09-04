@@ -7,31 +7,52 @@ for the customers table.
 """
 
 import sqlite3
+from uuid import uuid4
 from connection import get_connection, close_connection
 
 
-def add_customer(customer_id, customer_name, phone, email, status):
+def add_customer(customer_name, phone, email, status, table_id=None):
     """
-    Add a new customer to the database.
+    Add a new customer with an automatically generated Customer ID.
 
-    Args:
-        customer_id (str): Customer ID.
-        customer_name (str): Customer name.
-        phone (str): Phone number.
-        email (str): Email address.
-        status (str): Customer status.
-
-    Returns:
-        dict: Success status and message.
+    Customer IDs are generated sequentially:
+    CUST000001
+    CUST000002
+    CUST000003
+    ...
     """
+
     connection = None
 
     try:
-        # Establish database connection
         connection = get_connection()
         cursor = connection.cursor()
 
-        # Insert customer record
+        # Find the highest existing automatically generated Customer ID.
+        cursor.execute("""
+            SELECT customer_id
+            FROM customers
+            WHERE customer_id LIKE 'CUST%'
+            ORDER BY customer_id DESC
+            LIMIT 1;
+        """)
+
+        row = cursor.fetchone()
+
+        if row and row["customer_id"]:
+            last_customer_id = row["customer_id"]
+
+            try:
+                last_number = int(last_customer_id.replace("CUST", ""))
+            except ValueError:
+                last_number = 0
+        else:
+            last_number = 0
+
+        # Generate the next Customer ID.
+        customer_id = f"CUST{last_number + 1:06d}"
+
+        # Insert the new customer.
         query = """
             INSERT INTO customers (
                 customer_id,
@@ -47,33 +68,92 @@ def add_customer(customer_id, customer_name, phone, email, status):
             query,
             (
                 customer_id,
-                customer_name,
-                phone,
-                email,
-                status
+                customer_name.strip(),
+                phone.strip(),
+                email.strip() if email else None,
+                status.strip()
             )
         )
 
+        assigned_table = None
+        if table_id:
+            # A customer can be seated only at an available table.
+            table = cursor.execute(
+                """SELECT table_id, table_number, capacity, status
+                   FROM restaurant_tables WHERE table_id = ?""",
+                (table_id,),
+            ).fetchone()
+            if not table:
+                raise ValueError("Selected table was not found.")
+            if str(table["status"]).lower() != "available":
+                raise ValueError("Selected table is not available.")
+
+            active_session = cursor.execute(
+                """SELECT session_id FROM dining_sessions
+                   WHERE table_id = ? AND status = 'Active' LIMIT 1""",
+                (table_id,),
+            ).fetchone()
+            if active_session:
+                raise ValueError("Selected table already has an active dining session.")
+
+            session_id = f"DINE{uuid4().hex[:20].upper()}"
+            started_at = __import__("datetime").datetime.now().isoformat(timespec="seconds")
+            cursor.execute(
+                """INSERT INTO dining_sessions
+                   (session_id, customer_id, table_id, status, started_at, closed_at)
+                   VALUES (?, ?, ?, 'Active', ?, NULL)""",
+                (session_id, customer_id, table_id, started_at),
+            )
+            cursor.execute(
+                "UPDATE restaurant_tables SET status = 'Occupied' WHERE table_id = ?",
+                (table_id,),
+            )
+            assigned_table = {
+                "table_id": table["table_id"],
+                "table_number": table["table_number"],
+                "capacity": table["capacity"],
+                "status": "Occupied",
+                "session_id": session_id,
+            }
+
         connection.commit()
 
-        return {
+        response = {
             "success": True,
-            "message": "Customer added successfully."
+            "message": "Customer added successfully.",
+            "customer_id": customer_id
         }
+        if assigned_table:
+            response["table"] = assigned_table
+        return response
 
-    except sqlite3.IntegrityError:
+    except sqlite3.IntegrityError as db_error:
+        if connection is not None:
+            connection.rollback()
+
         return {
             "success": False,
-            "message": "Customer ID already exists."
+            "message": f"Customer could not be added because a unique or reference constraint was violated: {db_error}"
         }
 
+    except ValueError as error:
+        if connection is not None:
+            connection.rollback()
+        return {"success": False, "message": str(error)}
+
     except sqlite3.Error as db_error:
+        if connection is not None:
+            connection.rollback()
+
         return {
             "success": False,
             "message": f"Database error: {db_error}"
         }
 
     except Exception as error:
+        if connection is not None:
+            connection.rollback()
+
         return {
             "success": False,
             "message": f"An unexpected error occurred: {error}"
@@ -101,13 +181,19 @@ def get_all_customers():
         # Retrieve all customers
         query = """
             SELECT
-                customer_id,
-                customer_name,
-                phone,
-                email,
-                status
-            FROM customers
-            ORDER BY customer_name;
+                c.customer_id,
+                c.customer_name,
+                c.phone,
+                c.email,
+                c.status,
+                ds.table_id AS active_table_id,
+                rt.table_number AS active_table_number
+            FROM customers c
+            LEFT JOIN dining_sessions ds
+                ON ds.customer_id = c.customer_id AND ds.status = 'Active'
+            LEFT JOIN restaurant_tables rt
+                ON rt.table_id = ds.table_id
+            ORDER BY c.customer_name;
         """
 
         cursor.execute(query)
@@ -128,7 +214,9 @@ def get_all_customers():
                 "customer_name": row["customer_name"],
                 "phone": row["phone"],
                 "email": row["email"],
-                "status": row["status"]
+                "status": row["status"],
+                "active_table_id": row["active_table_id"],
+                "active_table_number": row["active_table_number"]
             })
 
         return {
@@ -172,13 +260,19 @@ def get_customer_by_id(customer_id):
         # Execute parameterized SQL query to fetch a single customer record
         query = """
             SELECT
-                customer_id,
-                customer_name,
-                phone,
-                email,
-                status
-            FROM customers
-            WHERE customer_id = ?;
+                c.customer_id,
+                c.customer_name,
+                c.phone,
+                c.email,
+                c.status,
+                ds.table_id AS active_table_id,
+                rt.table_number AS active_table_number
+            FROM customers c
+            LEFT JOIN dining_sessions ds
+                ON ds.customer_id = c.customer_id AND ds.status = 'Active'
+            LEFT JOIN restaurant_tables rt
+                ON rt.table_id = ds.table_id
+            WHERE c.customer_id = ?;
         """
         cursor.execute(query, (customer_id,))
         row = cursor.fetchone()
@@ -196,7 +290,9 @@ def get_customer_by_id(customer_id):
             "customer_name": row[1],
             "phone": row[2],
             "email": row[3],
-            "status": row[4]
+            "status": row[4],
+            "active_table_id": row[5],
+            "active_table_number": row[6]
         }
 
         return {

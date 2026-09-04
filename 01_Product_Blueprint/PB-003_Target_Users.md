@@ -31,7 +31,7 @@ Saru POS is designed for three primary user roles:
 
 - Restaurant Owner
 - Restaurant Manager
-- Cashier
+- Staff
 
 Each user has different responsibilities and requires different levels of system access.
 
@@ -126,9 +126,9 @@ All users expect the system to be:
 
 | User | Primary Responsibility | Access Level |
 |------|------------------------|--------------|
-| Owner | Complete Business Management | Full Access |
+| Admin | Complete Business Management | Full Access |
 | Manager | Daily Operations Management | Medium Access |
-| Cashier | Billing Operations | Limited Access |
+| Staff | Billing Operations | Limited Access |
 
 ---
 

@@ -4,7 +4,7 @@ BASE_URL = "http://127.0.0.1:5000"
 
 
 def test_billing_crud(auth_headers):
-    customer_id = "TEST_CUST_BILL_001"
+    customer_id = None
     table_id = "TEST_TABLE_BILL_001"
     bill_id = "TEST_BILL_001"
     invoice_number = "TEST-INV-001"
@@ -18,9 +18,8 @@ def test_billing_crud(auth_headers):
             f"{BASE_URL}/customers",
             headers=auth_headers,
             json={
-                "customer_id": customer_id,
                 "customer_name": "Billing Test Customer",
-                "phone": "9876543210",
+                "phone": "9876543212",
                 "email": "billingtest@example.com",
                 "status": "Active"
             }
@@ -28,6 +27,8 @@ def test_billing_crud(auth_headers):
 
         assert customer_response.status_code == 201
         assert customer_response.json()["success"] is True
+        customer_id = customer_response.json()["customer_id"]
+        assert customer_id.startswith("CUST")
 
         # 2. Create temporary restaurant table
         table_response = requests.post(

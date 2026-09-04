@@ -1,4 +1,4 @@
-﻿"""
+"""
 Routes for managing categories in the Saru POS v1.0 application.
 
 This module sets up the Flask Blueprint and imports the required
@@ -127,17 +127,16 @@ def update_category_route(category_id):
     description = data.get("description")
     status = data.get("status")
 
-    if not all([
-        is_non_empty_string(category_name),
-        is_non_empty_string(description),
-        is_non_empty_string(status)
-    ]):
+    if not is_non_empty_string(category_name) or not is_non_empty_string(status):
         return jsonify({
             "success": False,
-            "message": (
-                "All fields (category_name, description, "
-                "status) are required and must be valid strings."
-            )
+            "message": "Category name and status are required and must be valid strings."
+        }), 400
+
+    if description is not None and not is_non_empty_string(description):
+        return jsonify({
+            "success": False,
+            "message": "Description must be a valid string when provided."
         }), 400
 
     result = update_category(

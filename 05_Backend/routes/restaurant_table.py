@@ -1,4 +1,4 @@
-﻿"""
+"""
 Restaurant Table Routes Module
 
 This module initializes the Flask Blueprint for restaurant table management
@@ -14,6 +14,7 @@ from services.restaurant_table_service import (
     add_restaurant_table,
     get_all_restaurant_tables,
     get_restaurant_table_by_id,
+    update_table_status,
     update_restaurant_table,
     delete_restaurant_table,
 )
@@ -24,7 +25,7 @@ restaurant_table_bp = Blueprint("restaurant_table", __name__)
 
 @restaurant_table_bp.route("/restaurant-tables", methods=["POST"])
 @require_auth
-@require_role("Admin", "Manager", "Staff")
+@require_role("Admin", "Manager")
 def create_restaurant_table():
     """Creates a new restaurant table."""
 
@@ -100,6 +101,37 @@ def get_restaurant_table(table_id):
         return jsonify(result), 200
 
     return jsonify(result), 404
+
+@restaurant_table_bp.route('/restaurant-tables/<table_id>/status', methods=['PUT'])
+@require_auth
+@require_role("Admin", "Manager", "Staff")
+def update_restaurant_table_status(table_id):
+    """
+    Updates only the operational status of a restaurant table.
+    """
+
+    data = request.get_json(silent=True)
+
+    if not data:
+        return jsonify({
+            "success": False,
+            "message": "Request body must be valid JSON."
+        }), 400
+
+    status = data.get("status")
+
+    if not status:
+        return jsonify({
+            "success": False,
+            "message": "Status is required."
+        }), 400
+
+    result = update_table_status(table_id, status)
+
+    if result.get("success"):
+        return jsonify(result), 200
+
+    return jsonify(result), 400
 
 
 @restaurant_table_bp.route("/restaurant-tables/<table_id>", methods=["PUT"])

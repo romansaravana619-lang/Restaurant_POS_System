@@ -6,6 +6,7 @@ Main Flask application entry point for Saru POS v1.0.
 import os
 
 from flask import Flask, jsonify
+from flask_cors import CORS
 from werkzeug.exceptions import HTTPException
 from routes.auth import auth_bp
 from routes.customer import customer_bp
@@ -20,9 +21,17 @@ from routes.payment import payment_bp
 from routes.employee import employee_bp
 from routes.settings import settings_bp
 from routes.user import user_bp
+from routes.dining_session import dining_session_bp
 
 # Initialize Flask application
 app = Flask(__name__)
+CORS(
+    app,
+    origins=[
+        "http://localhost:5173",
+        "http://127.0.0.1:5173",
+    ],
+)  # Enable CORS for all routes 
 
 @app.errorhandler(HTTPException)
 def handle_http_exception(error):
@@ -53,6 +62,7 @@ app.register_blueprint(payment_bp)
 app.register_blueprint(employee_bp)
 app.register_blueprint(settings_bp)
 app.register_blueprint(user_bp)
+app.register_blueprint(dining_session_bp)
 
 @app.route("/", methods=["GET"])
 def index():

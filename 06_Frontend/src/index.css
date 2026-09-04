@@ -1,0 +1,857 @@
+﻿@import "tailwindcss";
+
+:root {
+  font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  color: #f8fafc;
+  background: #0b0d12;
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#root {
+  min-height: 100%;
+  margin: 0;
+}
+
+body {
+  min-width: 320px;
+  background:
+    radial-gradient(circle at top right, rgba(124, 58, 237, 0.08), transparent 28%),
+    #0b0d12;
+}
+
+button,
+input,
+select,
+textarea {
+  font: inherit;
+}
+
+button {
+  cursor: pointer;
+}
+
+::selection {
+  background: rgba(139, 92, 246, 0.35);
+}
+
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #0b0d12;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #252a35;
+  border-radius: 999px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #3a4150;
+}
+ 
+/* SaruPOS Login */
+.sarupos-login-shell {
+  min-height: 100vh;
+  display: grid;
+  grid-template-columns: minmax(0, 1.35fr) minmax(420px, 0.65fr);
+  background: #0b0d12;
+}
+
+.sarupos-login-visual {
+  position: relative;
+  min-height: 100vh;
+  overflow: hidden;
+  background:
+    linear-gradient(90deg, rgba(11, 13, 18, 0.18), rgba(11, 13, 18, 0.74)),
+    url("https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?auto=format&fit=crop&w=2400&q=90")
+      center / cover no-repeat;
+}
+
+.sarupos-login-visual::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(180deg, rgba(11, 13, 18, 0.08), rgba(11, 13, 18, 0.78)),
+    radial-gradient(circle at 70% 35%, rgba(139, 92, 246, 0.12), transparent 36%);
+}
+
+.sarupos-login-brand {
+  position: relative;
+  z-index: 1;
+  padding: 48px;
+}
+
+.sarupos-login-brand-title {
+  font-size: 26px;
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  color: #ffffff;
+}
+
+.sarupos-login-brand-title span {
+  color: #a78bfa;
+}
+
+.sarupos-login-brand-subtitle {
+  margin-top: 6px;
+  font-size: 13px;
+  color: #cbd5e1;
+}
+
+.sarupos-login-content {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 40px;
+  background:
+    radial-gradient(circle at top right, rgba(139, 92, 246, 0.08), transparent 30%),
+    #0b0d12;
+}
+
+.sarupos-login-card {
+  width: min(100%, 430px);
+  padding: 36px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 24px;
+  background: rgba(16, 19, 26, 0.94);
+  box-shadow:
+    0 24px 60px rgba(0, 0, 0, 0.38),
+    0 0 0 1px rgba(139, 92, 246, 0.04);
+  backdrop-filter: blur(18px);
+}
+
+.sarupos-login-card h1,
+.sarupos-login-card h2 {
+  margin: 0;
+  color: #f8fafc;
+}
+
+.sarupos-login-card p {
+  color: #94a3b8;
+}
+
+.sarupos-login-card label {
+  color: #cbd5e1;
+}
+
+.sarupos-login-card input {
+  width: 100%;
+  border: 1px solid #2d3340;
+  border-radius: 12px;
+  background: #10131a;
+  color: #f8fafc;
+  outline: none;
+}
+
+.sarupos-login-card input:focus {
+  border-color: #8b5cf6;
+  box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.14);
+}
+
+.sarupos-login-card button[type="submit"] {
+  border-radius: 12px;
+}
+
+@media (max-width: 980px) {
+  .sarupos-login-shell {
+    grid-template-columns: 1fr;
+  }
+
+  .sarupos-login-visual {
+    display: none;
+  }
+
+  .sarupos-login-content {
+    min-height: 100vh;
+    padding: 24px;
+  }
+}
+ 
+/* ===== SaruPOS Login UI ===== */
+
+.sarupos-login-shell {
+  position: relative;
+  min-height: 100vh;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #090b10;
+}
+
+.sarupos-login-bg {
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(90deg, rgba(7, 9, 13, 0.30), rgba(7, 9, 13, 0.72)),
+    url("https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?auto=format&fit=crop&w=2400&q=90")
+      center / cover no-repeat;
+  transform: scale(1.02);
+}
+
+.sarupos-login-vignette {
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(circle at center, transparent 20%, rgba(7, 9, 13, 0.45) 68%, rgba(7, 9, 13, 0.82) 100%),
+    linear-gradient(180deg, rgba(7, 9, 13, 0.18), rgba(7, 9, 13, 0.55));
+}
+
+.sarupos-login-grid {
+  position: absolute;
+  inset: 0;
+  opacity: 0.18;
+  background-image:
+    linear-gradient(rgba(255,255,255,0.035) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255,255,255,0.035) 1px, transparent 1px);
+  background-size: 44px 44px;
+  mask-image: linear-gradient(to bottom, transparent, black 20%, black 80%, transparent);
+}
+
+.sarupos-login-content {
+  position: relative;
+  z-index: 2;
+  width: min(100%, 520px);
+  padding: 28px 20px;
+}
+
+.sarupos-login-card {
+  width: 100%;
+  padding: 34px;
+  border: 1px solid rgba(255,255,255,0.10);
+  border-radius: 24px;
+  background: rgba(12, 15, 22, 0.88);
+  box-shadow:
+    0 30px 80px rgba(0,0,0,0.48),
+    0 0 0 1px rgba(139,92,246,0.04);
+  backdrop-filter: blur(22px);
+}
+
+.sarupos-brand {
+  display: flex;
+  align-items: center;
+  gap: 13px;
+}
+
+.sarupos-brand-mark {
+  width: 44px;
+  height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 auto;
+  border-radius: 13px;
+  background: linear-gradient(135deg, #8b5cf6, #6d28d9);
+  color: white;
+  font-size: 20px;
+  font-weight: 800;
+  box-shadow: 0 10px 28px rgba(124,58,237,0.28);
+}
+
+.sarupos-brand-name {
+  color: #f8fafc;
+  font-size: 21px;
+  font-weight: 800;
+  letter-spacing: -0.03em;
+}
+
+.sarupos-brand-name span {
+  color: #a78bfa;
+}
+
+.sarupos-brand-subtitle {
+  margin-top: 3px;
+  color: #64748b;
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.sarupos-field label {
+  display: block;
+  margin-bottom: 8px;
+  color: #cbd5e1;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.sarupos-input-wrap {
+  position: relative;
+  display: flex;
+  align-items: center;
+  min-height: 44px;
+  border: 1px solid #2a303c;
+  border-radius: 12px;
+  background: rgba(255,255,255,0.035);
+  transition: border-color 0.2s, box-shadow 0.2s, background 0.2s;
+}
+
+.sarupos-input-wrap:focus-within {
+  border-color: #8b5cf6;
+  background: rgba(255,255,255,0.055);
+  box-shadow: 0 0 0 3px rgba(139,92,246,0.12);
+}
+
+.sarupos-input-wrap > svg {
+  flex: 0 0 auto;
+  margin-left: 13px;
+  color: #64748b;
+}
+
+.sarupos-input-wrap input {
+  width: 100%;
+  min-width: 0;
+  border: 0;
+  outline: 0;
+  background: transparent;
+  color: #f8fafc;
+  padding: 11px 12px;
+  font-size: 14px;
+}
+
+.sarupos-input-wrap input::placeholder {
+  color: #475569;
+}
+
+.sarupos-field-dot {
+  width: 6px;
+  height: 6px;
+  margin-right: 13px;
+  flex: 0 0 auto;
+  border-radius: 999px;
+  background: #22c55e;
+  box-shadow: 0 0 10px rgba(34,197,94,0.45);
+}
+
+.sarupos-forgot {
+  border: 0;
+  background: transparent;
+  color: #a78bfa;
+  font-size: 12px;
+  cursor: pointer;
+}
+
+.sarupos-forgot:hover {
+  color: #c4b5fd;
+}
+
+.sarupos-eye {
+  margin-right: 10px;
+  border: 0;
+  background: transparent;
+  color: #64748b;
+  cursor: pointer;
+}
+
+.sarupos-eye:hover {
+  color: #e2e8f0;
+}
+
+.sarupos-error {
+  margin-top: 12px;
+  padding: 10px 12px;
+  border: 1px solid rgba(239,68,68,0.25);
+  border-radius: 10px;
+  background: rgba(239,68,68,0.10);
+  color: #fca5a5;
+  font-size: 12px;
+}
+
+.sarupos-signin-btn {
+  width: 100%;
+  margin-top: 18px;
+  min-height: 46px;
+  border: 0;
+  border-radius: 12px;
+  background: linear-gradient(135deg, #8b5cf6, #7c3aed);
+  color: #fff;
+  font-weight: 700;
+  box-shadow: 0 12px 28px rgba(124,58,237,0.24);
+}
+
+.sarupos-signin-btn:hover {
+  filter: brightness(1.06);
+}
+
+.sarupos-options {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-top: 14px;
+  color: #94a3b8;
+  font-size: 12px;
+}
+
+.sarupos-check {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+}
+
+.sarupos-check input {
+  position: absolute;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.sarupos-check-box {
+  width: 16px;
+  height: 16px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid #3a4250;
+  border-radius: 5px;
+  background: #11151d;
+  color: white;
+  font-size: 10px;
+}
+
+.sarupos-check input:checked + .sarupos-check-box {
+  border-color: #8b5cf6;
+  background: #8b5cf6;
+}
+
+.sarupos-request {
+  border: 0;
+  background: transparent;
+  color: #a78bfa;
+  font-size: 12px;
+  cursor: pointer;
+}
+
+.sarupos-divider {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 22px 0 14px;
+}
+
+.sarupos-divider span {
+  flex: 1;
+  height: 1px;
+  background: rgba(255,255,255,0.07);
+}
+
+.sarupos-divider small {
+  color: #475569;
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.13em;
+}
+
+.sarupos-extra-actions {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
+.sarupos-secondary-btn {
+  min-height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  border: 1px solid rgba(255,255,255,0.07);
+  border-radius: 10px;
+  background: rgba(255,255,255,0.025);
+  color: #64748b;
+  font-size: 11px;
+}
+
+.sarupos-secondary-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.sarupos-card-footer {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  margin-top: 18px;
+  color: #475569;
+  font-size: 10px;
+}
+
+.sarupos-status-dot {
+  width: 5px;
+  height: 5px;
+  border-radius: 999px;
+  background: #22c55e;
+  box-shadow: 0 0 8px rgba(34,197,94,0.5);
+}
+
+@media (max-width: 640px) {
+  .sarupos-login-content {
+    padding: 16px;
+  }
+
+  .sarupos-login-card {
+    padding: 24px;
+    border-radius: 20px;
+  }
+
+  .sarupos-extra-actions {
+    grid-template-columns: 1fr;
+  }
+
+  .sarupos-options {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+}
+ 
+/* ===== Login Final Layout Override ===== */
+
+.sarupos-login-shell {
+  display: grid;
+  grid-template-columns: 1.55fr 0.75fr;
+  align-items: stretch;
+  justify-content: stretch;
+}
+
+.sarupos-login-bg {
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(90deg, rgba(7, 9, 13, 0.18), rgba(7, 9, 13, 0.68)),
+    url("https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?auto=format&fit=crop&w=2400&q=90")
+      center / cover no-repeat;
+}
+
+.sarupos-login-vignette {
+  background:
+    linear-gradient(
+      90deg,
+      rgba(7, 9, 13, 0.04) 0%,
+      rgba(7, 9, 13, 0.18) 38%,
+      rgba(7, 9, 13, 0.82) 78%,
+      #090b10 100%
+    );
+}
+
+.sarupos-login-grid {
+  opacity: 0.08;
+}
+
+.sarupos-login-content {
+  position: relative;
+  z-index: 3;
+  grid-column: 2;
+  width: 100%;
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 48px;
+  background: rgba(8, 10, 15, 0.90);
+  border-left: 1px solid rgba(255,255,255,0.07);
+  backdrop-filter: blur(14px);
+}
+
+.sarupos-login-card {
+  width: min(100%, 430px);
+  padding: 34px;
+  border: 1px solid rgba(255,255,255,0.10);
+  border-radius: 22px;
+  background: rgba(13, 16, 23, 0.96);
+  box-shadow:
+    0 30px 80px rgba(0,0,0,0.48),
+    0 0 0 1px rgba(139,92,246,0.04);
+}
+
+@media (max-width: 980px) {
+  .sarupos-login-shell {
+    display: flex;
+  }
+
+  .sarupos-login-bg {
+    opacity: 0.42;
+  }
+
+  .sarupos-login-content {
+    grid-column: auto;
+    min-height: 100vh;
+    border-left: 0;
+    background: rgba(8, 10, 15, 0.58);
+    backdrop-filter: blur(10px);
+    padding: 24px;
+  }
+}
+
+/* ===== FINAL LOGIN: CENTER CARD ===== */
+
+.sarupos-login-shell {
+  position: relative;
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  background: #090b10;
+}
+
+.sarupos-login-bg {
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(
+      90deg,
+      rgba(7, 9, 13, 0.38),
+      rgba(7, 9, 13, 0.48)
+    ),
+    url("https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?auto=format&fit=crop&w=2400&q=90")
+      center / cover no-repeat;
+}
+
+.sarupos-login-vignette {
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(
+      circle at center,
+      rgba(7, 9, 13, 0.08) 0%,
+      rgba(7, 9, 13, 0.28) 62%,
+      rgba(7, 9, 13, 0.68) 100%
+    );
+}
+
+.sarupos-login-grid {
+  position: absolute;
+  inset: 0;
+  opacity: 0.06;
+}
+
+.sarupos-login-content {
+  position: relative;
+  z-index: 5;
+  width: min(100%, 540px);
+  min-height: auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 32px 20px;
+  background: transparent;
+  border: 0;
+  backdrop-filter: none;
+}
+
+.sarupos-login-card {
+  width: min(100%, 500px);
+  padding: 38px;
+  border: 1px solid rgba(255,255,255,0.11);
+  border-radius: 24px;
+  background: rgba(10, 13, 19, 0.90);
+  box-shadow:
+    0 30px 90px rgba(0,0,0,0.52),
+    0 0 0 1px rgba(139,92,246,0.04);
+  backdrop-filter: blur(22px);
+}
+
+@media (max-width: 640px) {
+  .sarupos-login-content {
+    width: 100%;
+    padding: 20px 14px;
+  }
+
+  .sarupos-login-card {
+    padding: 26px 22px;
+    border-radius: 20px;
+  }
+}
+ 
+/* SARUPOS FINAL LOGIN OVERRIDE */
+
+.sarupos-login-shell {
+  position: relative;
+  width: 100%;
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  background: #090b10;
+}
+
+.sarupos-login-bg {
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(
+      90deg,
+      rgba(7, 9, 13, 0.30),
+      rgba(7, 9, 13, 0.48)
+    ),
+    url("https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?auto=format&fit=crop&w=2400&q=90")
+      center / cover no-repeat;
+}
+
+.sarupos-login-vignette {
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(
+      circle at center,
+      rgba(7, 9, 13, 0.08) 0%,
+      rgba(7, 9, 13, 0.24) 58%,
+      rgba(7, 9, 13, 0.62) 100%
+    );
+  pointer-events: none;
+}
+
+.sarupos-login-grid {
+  position: absolute;
+  inset: 0;
+  opacity: 0.04;
+  pointer-events: none;
+}
+
+.sarupos-login-content {
+  position: relative;
+  z-index: 5;
+  width: 100%;
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 28px 20px;
+}
+
+.sarupos-login-card {
+  width: min(100%, 430px);
+  padding: 30px;
+  border: 1px solid rgba(255,255,255,0.10);
+  border-radius: 22px;
+  background: rgba(10, 13, 19, 0.93);
+  box-shadow:
+    0 28px 75px rgba(0,0,0,0.50),
+    0 0 0 1px rgba(139,92,246,0.035);
+  backdrop-filter: blur(20px);
+}
+
+.sarupos-brand-mark {
+  width: 42px;
+  height: 42px;
+}
+
+.sarupos-brand-name {
+  font-size: 20px;
+}
+
+.sarupos-input-wrap {
+  min-height: 44px;
+}
+
+.sarupos-signin-btn {
+  min-height: 45px;
+}
+
+@media (max-width: 640px) {
+  .sarupos-login-content {
+    padding: 18px 14px;
+  }
+
+  .sarupos-login-card {
+    width: min(100%, 430px);
+    padding: 24px 20px;
+    border-radius: 20px;
+  }
+}
+
+/* ===== FINAL LOGIN CENTER + CLEAN INPUT FOCUS FIX ===== */
+
+.sarupos-login-shell {
+  position: relative !important;
+  width: 100% !important;
+  min-height: 100vh !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  overflow: hidden !important;
+}
+
+.sarupos-login-content {
+  position: absolute !important;
+  inset: 0 !important;
+  z-index: 10 !important;
+  width: 100% !important;
+  min-height: 100vh !important;
+  max-width: none !important;
+  margin: 0 !important;
+  padding: 24px !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  background: transparent !important;
+  border: 0 !important;
+  backdrop-filter: none !important;
+}
+
+.sarupos-login-card {
+  position: relative !important;
+  width: min(430px, calc(100vw - 40px)) !important;
+  max-width: 430px !important;
+  margin: 0 auto !important;
+  transform: none !important;
+}
+
+/* Only the outer wrapper gets the focus glow */
+.sarupos-input-wrap {
+  border: 1px solid #2a303c !important;
+  box-shadow: none !important;
+  outline: none !important;
+}
+
+.sarupos-input-wrap:focus-within {
+  border-color: #8b5cf6 !important;
+  box-shadow: 0 0 0 2px rgba(139, 92, 246, 0.18) !important;
+}
+
+/* Inner input must NEVER create another box */
+.sarupos-input-wrap input,
+.sarupos-input-wrap input:focus,
+.sarupos-input-wrap input:hover,
+.sarupos-input-wrap input:active {
+  border: 0 !important;
+  outline: 0 !important;
+  box-shadow: none !important;
+  border-radius: 0 !important;
+  background: transparent !important;
+  appearance: none !important;
+  -webkit-appearance: none !important;
+}
+
+/* Remove Chrome autofill visual treatment */
+.sarupos-input-wrap input:-webkit-autofill,
+.sarupos-input-wrap input:-webkit-autofill:hover,
+.sarupos-input-wrap input:-webkit-autofill:focus,
+.sarupos-input-wrap input:-webkit-autofill:active {
+  -webkit-text-fill-color: #f8fafc !important;
+  -webkit-box-shadow: 0 0 0 1000px transparent inset !important;
+  box-shadow: 0 0 0 1000px transparent inset !important;
+  transition: background-color 9999s ease-out 0s !important;
+}
+
+@media (max-width: 640px) {
+  .sarupos-login-content {
+    padding: 16px !important;
+  }
+
+  .sarupos-login-card {
+    width: min(430px, calc(100vw - 28px)) !important;
+  }
+}

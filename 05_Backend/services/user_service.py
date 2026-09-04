@@ -208,7 +208,7 @@ def update_user(
     role: str,
     status: str
 ) -> dict:
-    """Updates an existing user with an Argon2 password hash."""
+    """Updates an existing user. Password is changed only when provided."""
 
     connection = None
 
@@ -216,30 +216,49 @@ def update_user(
         connection = get_connection()
         cursor = connection.cursor()
 
-        hashed_password = password_hasher.hash(password)
+        if password and password.strip():
+            hashed_password = password_hasher.hash(password)
 
-        update_query = """
-            UPDATE users
-            SET
-                employee_id = ?,
-                username = ?,
-                password = ?,
-                role = ?,
-                status = ?
-            WHERE user_id = ?;
-        """
+            update_query = """
+                UPDATE users
+                SET
+                    employee_id = ?,
+                    username = ?,
+                    password = ?,
+                    role = ?,
+                    status = ?
+                WHERE user_id = ?;
+            """
 
-        cursor.execute(
-            update_query,
-            (
+            params = (
                 employee_id,
                 username,
                 hashed_password,
                 role,
                 status,
                 user_id,
-            ),
-        )
+            )
+
+        else:
+            update_query = """
+                UPDATE users
+                SET
+                    employee_id = ?,
+                    username = ?,
+                    role = ?,
+                    status = ?
+                WHERE user_id = ?;
+            """
+
+            params = (
+                employee_id,
+                username,
+                role,
+                status,
+                user_id,
+            )
+
+        cursor.execute(update_query, params)
 
         if cursor.rowcount == 0:
             connection.rollback()

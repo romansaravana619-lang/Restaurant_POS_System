@@ -187,6 +187,96 @@ def get_restaurant_table_by_id(table_id: str) -> dict:
         if connection:
             close_connection(connection)
 
+def update_table_status(table_id: str, status: str) -> dict:
+    """
+    Updates only the operational status of a restaurant table.
+
+    Allowed statuses:
+    Available
+    Occupied
+    Reserved
+    Cleaning
+    """
+
+    connection = None
+
+    try:
+        allowed_statuses = {
+            "Available",
+            "Occupied",
+            "Reserved",
+            "Cleaning"
+        }
+
+        if status not in allowed_statuses:
+            return {
+                "success": False,
+                "message": (
+                    "Invalid table status. Allowed statuses are: "
+                    "Available, Occupied, Reserved, Cleaning."
+                )
+            }
+
+        connection = get_connection()
+        cursor = connection.cursor()
+
+        cursor.execute(
+            """
+            SELECT table_id, table_number, status
+            FROM restaurant_tables
+            WHERE table_id = ?
+            """,
+            (table_id,)
+        )
+
+        table = cursor.fetchone()
+
+        if not table:
+            return {
+                "success": False,
+                "message": "Restaurant table not found."
+            }
+
+        cursor.execute(
+            """
+            UPDATE restaurant_tables
+            SET status = ?
+            WHERE table_id = ?
+            """,
+            (status, table_id)
+        )
+
+        connection.commit()
+
+        return {
+            "success": True,
+            "message": "Restaurant table status updated successfully.",
+            "table_id": table_id,
+            "status": status
+        }
+
+    except sqlite3.Error as db_error:
+        if connection:
+            connection.rollback()
+
+        return {
+            "success": False,
+            "message": f"Database error occurred: {str(db_error)}"
+        }
+
+    except Exception as error:
+        if connection:
+            connection.rollback()
+
+        return {
+            "success": False,
+            "message": f"An unexpected error occurred: {str(error)}"
+        }
+
+    finally:
+        if connection:
+            close_connection(connection)
+
 def update_restaurant_table(table_id: str, table_number: str, capacity: int, status: str) -> dict:
     """
     Updates an existing restaurant table in the database.

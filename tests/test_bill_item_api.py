@@ -6,7 +6,7 @@ BASE_URL = "http://127.0.0.1:5000"
 def test_bill_item_crud(auth_headers):
     category_id = "TEST_CAT_BI_001"
     menu_item_id = "TEST_MENU_BI_001"
-    customer_id = "TEST_CUST_BI_001"
+    customer_id = None
     table_id = "TEST_TABLE_BI_001"
     bill_id = "TEST_BILL_BI_001"
     bill_item_id = "TEST_BILL_ITEM_001"
@@ -51,9 +51,8 @@ def test_bill_item_crud(auth_headers):
             f"{BASE_URL}/customers",
             headers=auth_headers,
             json={
-                "customer_id": customer_id,
                 "customer_name": "Bill Item Test Customer",
-                "phone": "9876543210",
+                "phone": "9876543213",
                 "email": "billitemtest@example.com",
                 "status": "Active"
             }
@@ -61,6 +60,8 @@ def test_bill_item_crud(auth_headers):
 
         assert customer_response.status_code == 201
         assert customer_response.json()["success"] is True
+        customer_id = customer_response.json()["customer_id"]
+        assert customer_id.startswith("CUST")
 
         # 4. Create temporary restaurant table
         table_response = requests.post(

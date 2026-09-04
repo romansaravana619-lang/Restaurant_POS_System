@@ -55,9 +55,9 @@ Designed for:
 
 # Target Users
 
-- Owner
+- Admin
 - Manager
-- Cashier
+- Staff
 
 ---
 

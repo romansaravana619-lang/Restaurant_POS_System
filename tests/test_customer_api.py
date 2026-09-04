@@ -4,7 +4,7 @@ BASE_URL = "http://127.0.0.1:5000"
 
 
 def test_customer_crud(auth_headers):
-    customer_id = "TEST_CUS_001"
+    customer_id = None
 
     try:
         # 1. Create Customer
@@ -12,9 +12,8 @@ def test_customer_crud(auth_headers):
             f"{BASE_URL}/customers",
             headers=auth_headers,
             json={
-                "customer_id": customer_id,
                 "customer_name": "Automated Test Customer",
-                "phone": "9876543210",
+                "phone": "9876543211",
                 "email": "testcustomer@example.com",
                 "status": "Active"
             }
@@ -22,6 +21,8 @@ def test_customer_crud(auth_headers):
 
         assert create_response.status_code == 201
         assert create_response.json()["success"] is True
+        customer_id = create_response.json()["customer_id"]
+        assert customer_id.startswith("CUST")
 
         # 2. Get Customer
         get_response = requests.get(
@@ -39,7 +40,7 @@ def test_customer_crud(auth_headers):
             headers=auth_headers,
             json={
                 "customer_name": "Updated Test Customer",
-                "phone": "9999999999",
+                "phone": "9876543299",
                 "email": "updated@example.com",
                 "status": "Active"
             }

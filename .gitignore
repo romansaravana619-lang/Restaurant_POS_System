@@ -28,3 +28,6 @@ __pycache__/
 
 05_Backend/routes_backup_security/
 tests_backup_security/
+# Frontend dependencies and build output
+06_Frontend/node_modules/
+06_Frontend/dist/

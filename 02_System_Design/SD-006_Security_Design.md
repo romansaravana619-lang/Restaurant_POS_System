@@ -76,9 +76,9 @@ Version 1 supports Role-Based Access Control (RBAC).
 
 | Role | Access |
 |------|---------|
-| Owner | Full System Access |
+| Admin | Full System Access |
 | Manager | Menu, Inventory, Billing, Customers |
-| Cashier | Billing and Customer Management |
+| Staff | Billing and Customer Management |
 
 ---
 

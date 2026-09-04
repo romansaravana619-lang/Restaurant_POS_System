@@ -36,7 +36,7 @@ The features of Saru POS are organized into functional modules.
 ## Features
 
 - Secure login system
-- Role-based access (Owner, Manager, Cashier)
+- Role-based access (Admin, Manager, Staff)
 - Password management
 - Logout functionality
 

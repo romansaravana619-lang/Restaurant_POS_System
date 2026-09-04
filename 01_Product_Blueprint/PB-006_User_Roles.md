@@ -29,15 +29,15 @@ This document defines the user roles, responsibilities, permissions, and access 
 
 Saru POS supports three user roles:
 
-- Owner
+- Admin
 - Manager
-- Cashier
+- Staff
 
 Each role has different responsibilities and permission levels.
 
 ---
 
-# Role 1 – Owner
+# Role 1 – Admin
 
 ## Description
 
@@ -90,7 +90,7 @@ The Manager supervises daily restaurant operations and manages staff activities.
 
 ---
 
-# Role 3 – Cashier
+# Role 3 – Staff
 
 ## Description
 
@@ -121,7 +121,7 @@ The Cashier is responsible for customer billing and payment processing.
 
 # Permission Matrix
 
-| Feature | Owner | Manager | Cashier |
+| Feature | Admin | Manager | Staff |
 |---------|:-----:|:-------:|:--------:|
 | Dashboard | ✅ | ✅ | ✅ |
 | Billing | ✅ | ✅ | ✅ |

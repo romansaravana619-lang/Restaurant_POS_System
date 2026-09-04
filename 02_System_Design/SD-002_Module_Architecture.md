@@ -92,9 +92,9 @@ Purpose
 
 Users
 
-- Owner
+- Admin
 - Manager
-- Cashier
+- Staff
 
 ---
 

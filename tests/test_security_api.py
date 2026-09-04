@@ -41,9 +41,8 @@ def test_protected_endpoint_allows_valid_token(auth_headers):
         f"{BASE_URL}/customers",
         headers=auth_headers,
         json={
-            "customer_id": "SECURITY_TEST_003",
             "customer_name": "Valid Token Test",
-            "phone": "9876500002",
+            "phone": "9876500102",
             "email": "validtoken@example.com",
             "status": "Active"
         }
@@ -51,9 +50,11 @@ def test_protected_endpoint_allows_valid_token(auth_headers):
 
     assert response.status_code == 201
     assert response.json()["success"] is True
+    customer_id = response.json()["customer_id"]
+    assert customer_id.startswith("CUST")
 
     cleanup_response = requests.delete(
-        f"{BASE_URL}/customers/SECURITY_TEST_003",
+        f"{BASE_URL}/customers/{customer_id}",
         headers=auth_headers
     )
 
