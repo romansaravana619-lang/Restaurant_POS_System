@@ -3,11 +3,14 @@ app.py
 
 Main Flask application entry point for Saru POS v1.0.
 """
+
 import os
 
 from flask import Flask, jsonify
 from flask_cors import CORS
 from werkzeug.exceptions import HTTPException
+
+# Route blueprints
 from routes.auth import auth_bp
 from routes.customer import customer_bp
 from routes.supplier import supplier_bp
@@ -23,9 +26,62 @@ from routes.settings import settings_bp
 from routes.user import user_bp
 from routes.dining_session import dining_session_bp
 
+# Database initialization
+from create_tables import (
+    create_users_table,
+    create_employees_table,
+    create_categories_table,
+    create_menu_items_table,
+    create_customers_table,
+    create_restaurant_tables_table,
+    create_bills_table,
+    create_bill_items_table,
+    create_payments_table,
+    create_suppliers_table,
+    create_inventory_items_table,
+    create_settings_table,
+)
+
+from seed_data import seed_default_data
+
+
+# ============================================================
 # Initialize Flask application
+# ============================================================
+
 app = Flask(__name__)
-frontend_url = os.getenv("SARU_POS_FRONTEND_URL", "http://localhost:5173")
+
+
+# ============================================================
+# Database Initialization
+# ============================================================
+
+# Create all required database tables
+create_users_table()
+create_employees_table()
+create_categories_table()
+create_menu_items_table()
+create_customers_table()
+create_restaurant_tables_table()
+create_bills_table()
+create_bill_items_table()
+create_payments_table()
+create_suppliers_table()
+create_inventory_items_table()
+create_settings_table()
+
+# Insert default admin and initial application data
+seed_default_data()
+
+
+# ============================================================
+# CORS Configuration
+# ============================================================
+
+frontend_url = os.getenv(
+    "SARU_POS_FRONTEND_URL",
+    "http://localhost:5173"
+)
 
 CORS(
     app,
@@ -34,7 +90,12 @@ CORS(
         "http://127.0.0.1:5173",
         frontend_url,
     ],
-)# Enable CORS for all routes 
+)
+
+
+# ============================================================
+# Error Handlers
+# ============================================================
 
 @app.errorhandler(HTTPException)
 def handle_http_exception(error):
@@ -51,7 +112,11 @@ def handle_unexpected_exception(error):
         "message": "An internal server error occurred."
     }), 500
 
-# Register blueprints
+
+# ============================================================
+# Register Blueprints
+# ============================================================
+
 app.register_blueprint(auth_bp)
 app.register_blueprint(customer_bp)
 app.register_blueprint(supplier_bp)
@@ -67,6 +132,11 @@ app.register_blueprint(settings_bp)
 app.register_blueprint(user_bp)
 app.register_blueprint(dining_session_bp)
 
+
+# ============================================================
+# Health Check
+# ============================================================
+
 @app.route("/", methods=["GET"])
 def index():
     return jsonify({
@@ -75,8 +145,17 @@ def index():
         "status": "Running"
     })
 
+
+# ============================================================
+# Local / Production Server
+# ============================================================
+
 if __name__ == "__main__":
-    debug_mode = os.getenv("SARU_POS_DEBUG", "false").lower() == "true"
+
+    debug_mode = os.getenv(
+        "SARU_POS_DEBUG",
+        "false"
+    ).lower() == "true"
 
     app.config["DEBUG"] = debug_mode
 
@@ -84,4 +163,4 @@ if __name__ == "__main__":
         debug=debug_mode,
         host="0.0.0.0",
         port=int(os.getenv("PORT", 5000))
-)
+    )

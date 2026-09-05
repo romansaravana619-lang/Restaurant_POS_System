@@ -11,8 +11,10 @@ from pathlib import Path
 
 # Database Path
 BASE_DIR = Path(__file__).resolve().parent
-DATABASE_PATH = BASE_DIR.parent / "04_Database" / "database" / "restaurant_pos.db"
+DATABASE_DIR = BASE_DIR.parent / "04_Database" / "database"
+DATABASE_DIR.mkdir(parents=True, exist_ok=True)
 
+DATABASE_PATH = DATABASE_DIR / "restaurant_pos.db"
 
 def get_connection():
     """
