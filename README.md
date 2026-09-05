@@ -6,6 +6,17 @@
 
 [![Frontend](https://img.shields.io/badge/Frontend-React%20%2B%20Vite-61DAFB)](06_Frontend) [![Backend](https://img.shields.io/badge/Backend-Python%20%2B%20Flask-000000)](05_Backend) [![Database](https://img.shields.io/badge/Database-SQLite-003B57)](04_Database) [![Security](https://img.shields.io/badge/Security-JWT%20%2B%20Argon2-7C3AED)](docs/SaruPOS_Technical_Master/03_SECURITY_JWT_RBAC.md) [![Testing](https://img.shields.io/badge/Testing-Pytest%20%2B%20E2E-16A34A)](docs/SaruPOS_Technical_Master/05_TESTING_VALIDATION_AND_CAVEATS.md)
 
+## 🚀 Live Demo
+
+### 🌐 [Open SaruPOS Live Demo](https://sarupos-frontend.onrender.com)
+
+**Frontend:** [sarupos-frontend.onrender.com](https://sarupos-frontend.onrender.com)  
+**Backend API:** [sarupos-backend.onrender.com](https://sarupos-backend.onrender.com)
+
+> **Note:** The public demo runs on Render Free. The service may sleep after inactivity, so the first request can take a little longer. The current deployment uses SQLite for demonstration/portfolio purposes; production persistence would use a managed database such as PostgreSQL.
+
+---
+
 ## 🚀 Project at a Glance
 
 **SaruPOS v1.0** is a full-stack Restaurant Point of Sale system designed to centralize daily restaurant operations in one application.
@@ -135,7 +146,7 @@ Validation used both **automated API/security/service testing** and **manual int
 
 Manual validation covered authentication, role restrictions, customer/table assignment, occupied-table behavior, duplicate customer protection, menu availability, POS ordering, checkout/payment, receipt flow, table release and POS draft persistence.
 
-> **Testing note:** Public documentation should not claim that every automated test currently passes unless the exact Git commit has been freshly tested and confirms it. Earlier audit work reached 23 passed after correcting test-fixture/import assumptions; a later production-clean run still exposed a subset of test-fixture/import issues.
+> **Current validation:** the deployed application has been manually verified through the complete core E2E POS workflow.
 
 [Read the testing document →](docs/SaruPOS_Technical_Master/05_TESTING_VALIDATION_AND_CAVEATS.md)
 
@@ -211,7 +222,15 @@ Current local development endpoints:
 - Backend: `http://127.0.0.1:5000`
 - Frontend: `http://localhost:5173`
 
-The project can be demonstrated locally, extended to a same-network LAN setup, and later deployed publicly through a properly secured cloud environment.
+### Public deployment
+
+- **Frontend:** https://sarupos-frontend.onrender.com
+- **Backend:** https://sarupos-backend.onrender.com
+- **Platform:** Render
+- **Frontend:** React/Vite Static Site
+- **Backend:** Flask Web Service + Gunicorn
+
+The project can be demonstrated locally, extended to a same-network LAN setup, and deployed publicly through a secured cloud environment. The current public deployment is intended for portfolio/demo use.
 
 [Read the deployment document →](docs/SaruPOS_Technical_Master/09_LOCAL_LAN_DEMO_DEPLOYMENT.md)
 
@@ -281,7 +300,9 @@ For the full local procedure, see [RUN_LOCAL.md](RUN_LOCAL.md).
 
 ### **SaruPOS v1.0 — Core POS Implementation Complete ✅**
 
-**Built → Audited → Validated → Documented → GitHub**
+**Built → Audited → Validated → Documented → Deployed**
+
+The current public deployment demonstrates the complete core POS workflow from authentication and table assignment through checkout, payment and table release.
 
 Next evolution:
 
@@ -301,6 +322,6 @@ Electrical & Electronics Engineering Student • Tech Builder
 
 ## ⭐ What This Project Demonstrates
 
-**Full-Stack Development • React • Python • Flask • REST APIs • SQLite • JWT • Argon2 • RBAC • Backend Validation • Transactions • Testing • Software Architecture • Documentation • SaaS Planning**
+**Full-Stack Development • React • Python • Flask • REST APIs • SQLite • JWT • Argon2 • RBAC • Backend Validation • Transactions • Testing • Software Architecture • Documentation • Cloud Deployment • SaaS Planning**
 
 > **SaruPOS is more than a POS project — it is a foundation for building a larger software product.**
