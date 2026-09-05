@@ -289,12 +289,28 @@ export default function ResourcePage({ resource }) {
       .includes(query.toLowerCase()),
   );
 
-  function startCreate() {
-    setEditing(null);
-    setForm(emptyForm);
-    setError("");
-    setModalOpen(true);
+  async function startCreate() {
+  setEditing(null);
+  setForm(emptyForm);
+  setError("");
+
+  if (resource === "customers") {
+    try {
+      const tableResult = await services.tables.list();
+
+      const availableTables = Array.isArray(tableResult.restaurant_tables)
+        ? tableResult.restaurant_tables
+        : [];
+
+      setTables(availableTables);
+    } catch (err) {
+      setTables([]);
+      setError(`Unable to load tables: ${err.message}`);
+    }
   }
+
+  setModalOpen(true);
+}
 
   function startEdit(row) {
     const next = { ...emptyForm };
