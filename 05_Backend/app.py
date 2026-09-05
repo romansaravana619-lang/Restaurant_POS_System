@@ -25,13 +25,16 @@ from routes.dining_session import dining_session_bp
 
 # Initialize Flask application
 app = Flask(__name__)
+frontend_url = os.getenv("SARU_POS_FRONTEND_URL", "http://localhost:5173")
+
 CORS(
     app,
     origins=[
         "http://localhost:5173",
         "http://127.0.0.1:5173",
+        frontend_url,
     ],
-)  # Enable CORS for all routes 
+)# Enable CORS for all routes 
 
 @app.errorhandler(HTTPException)
 def handle_http_exception(error):
@@ -79,6 +82,6 @@ if __name__ == "__main__":
 
     app.run(
         debug=debug_mode,
-        host="127.0.0.1",
-        port=5000
-    )
+        host="0.0.0.0",
+        port=int(os.getenv("PORT", 5000))
+)
