@@ -15,17 +15,15 @@ This folder contains the complete technical documentation set for SaruPOS v1.0.
 9. Local / LAN / Cloud Demo Deployment
 10. Complete Documentation Map
 
-## Master PDF
+## 📘 Master PDF
 
-The polished, presentation-ready master handbook is:
+**[SaruPOS Master Technical Documentation v1.0 — Beautiful PDF](./SaruPOS_Master_Technical_Documentation_v1.0_Beautiful.pdf)**
 
-**`SaruPOS_Master_Technical_Documentation_v1.0_ENHANCED.pdf`**
-
-Place the PDF in this same folder in the local project before pushing the binary file to GitHub.
+The PDF is the compiled professional handbook covering architecture, JWT/RBAC, REST API design, database/data integrity, billing and transaction safety, table/dining-session state, frontend/backend integration, E2E workflow, architecture decisions, testing status, glossary and future SaaS evolution.
 
 ## Purpose
 
-The Markdown files are the GitHub-readable technical references. The Master PDF is the compiled professional handbook covering architecture, JWT/RBAC, REST API design, database/data integrity, billing and transaction safety, table/dining-session state, frontend/backend integration, E2E workflow, architecture decisions, testing status, glossary and future SaaS evolution.
+The Markdown files are the GitHub-readable technical references. The Master PDF provides the polished, presentation-ready consolidated version.
 
 ## Project Journey
 
