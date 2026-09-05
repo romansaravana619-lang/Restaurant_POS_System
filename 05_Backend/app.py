@@ -34,6 +34,7 @@ from create_tables import (
     create_menu_items_table,
     create_customers_table,
     create_restaurant_tables_table,
+    create_dining_sessions_table,
     create_bills_table,
     create_bill_items_table,
     create_payments_table,
@@ -63,6 +64,7 @@ create_categories_table()
 create_menu_items_table()
 create_customers_table()
 create_restaurant_tables_table()
+create_dining_sessions_table()
 create_bills_table()
 create_bill_items_table()
 create_payments_table()
