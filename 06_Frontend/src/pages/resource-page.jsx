@@ -256,7 +256,11 @@ export default function ResourcePage({ resource }) {
       if (resource === "customers") {
         try {
           const tableResult = await services.tables.list();
-          setTables(tableResult.restaurant_tables || []);
+            setTables(
+               Array.isArray(tableResult.restaurant_tables)
+              ? tableResult.restaurant_tables
+          : []
+    );
         } catch {
           setTables([]);
         }
